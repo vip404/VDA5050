@@ -4,6 +4,11 @@ An open standard for communication between mobile robot fleets and a central fle
 
 **Note**: We are constantly working to improve the VDA 5050. If there are any differences between the markdown document/JSON schemas on GitHub and the published document by the VDA, the PDF on the VDA website is valid. The current version of the official VDA 5050 document can be found ([here](https://www.vda.de/vda-5050)).
 
+## Specifications / 协议文档
+The technical specifications for VDA 5050 are available in the following languages:
+- 🇬🇧 [English Version (VDA5050_EN.md)](./VDA5050_EN.md)
+- 🇨🇳 [中文翻译版 (VDA5050_ZH.md)](./VDA5050_ZH.md)
+
 ## How to contribute
 If you work for a VDA / VDMA member, ask your contact person if you can join the working group.
 Everyone is free to raise issues or suggest new improvements to the protocol.
