@@ -561,12 +561,6 @@ mobile robot 应当报告一个类型为 'NO_ORDER_TO_CANCEL' 且级别设置为
 4. mobile robot 应当继续执行先前的 order。
 5. 该 warning 应当被报告，直到 mobile robot 接受了一个新 order。
 
-#### 6.1.4.6 Mobile robot receives an order with orderId different to the orderId of an active order (Mobile robot 收到 orderId 不同于活跃 order 的 orderId 的 order)
-
-处理方案：
-
-1. mobile robot 不应在其内部缓冲区中接收该新 order。
-2. mobile robot 在其缓冲区中保留先前的 order。
 3. mobile robot 应当报告一个类型为 'OTHER_ORDER_ACTIVE' 且级别为 'WARNING' 的错误。
 4. mobile robot 应当继续执行先前的 order。
 5. 该 warning 应当被报告，直到 mobile robot 接受了一个新 order。
@@ -1136,30 +1130,30 @@ mobile robot 可以通过 `errorReferences` 数组添加有助于查找错误原
 
 mobile robot 应当使用预定义的错误类型来报告特定问题。下表列出了预定义的错误类型及其描述。
 
-| 错误类型 (Error Type) | 错误级别 (Error level) | 描述 (Description) | 引用 (Reference) | 报告时长 (Report duration) |
-| :--- | :--- | :--- | :--- | :--- |
-| 'UNSUPPORTED_PARAMETER' | 'CRITICAL' | 收到带有不支持的可选参数的消息。 | 参数名称 | 直到接受新订单。 |
-| 'NO_ORDER_TO_CANCEL' | 'WARNING' | mobile robot 收到 `cancelOrder` action，但没有可取消的活跃订单。 | `cancelOrder` 的 `actionId` | 直到接受新订单。 |
-| 'VALIDATION_FAILURE' | 'WARNING' | 收到格式错误的订单。 | 如果可能，提供被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
-| 'INVALID_ORDER_ACTION' | 'WARNING' | 收到包含不支持 action 的订单。 | 被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
-| 'INVALID_INSTANT_ACTION' | 'WARNING' | 收到不支持的 instant action。 | `instantAction` 的 `actionId` | 直到接受新的 instant action。 |
-| 'OUTDATED_ORDER_UPDATE' | 'WARNING' | 收到 `orderId` 正确但 `orderUpdateId` 已过期的订单。 | 被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
-| 'SAME_ORDER_UPDATE_ID' | 'WARNING' | 收到重复的订单消息（相同的 `orderId` 和 `orderUpdateId`）。 | 被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
-| 'ORDER_UPDATE_FOLLOWING_CANCEL' | 'WARNING' | 收到针对已取消订单的订单更新。 | 被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
-| 'OUTSIDE_OF_CORRIDOR' | 'CRITICAL' | 偏离了为边定义的 corridor (走廊)。 | `edgeId` | 直到 mobile robot 不再违反走廊边界。 |
-| 'INSUFFICIENT_MEMORY' | 'URGENT' | mobile robot 没有足够的内存来处理接收到的订单。 | 如果可能，提供被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
-| 'DUPLICATE_MAP' | 'WARNING' | 收到已存在的 `mapId` 和 `mapVersion` 的地图。 | 重复地图的 `mapId` 和 `mapVersion` | 直到接受新的地图相关 instantAction。 |
-| 'BLOCKED_ZONE_VIOLATION' | 'CRITICAL' | 进入 'BLOCKED' 区域。 | `zoneId` | 直到 mobile robot 不再违反阻塞区域规则。 |
-| 'DUPLICATE_ZONE_SET' | 'WARNING' | 收到已存在的 `zoneSetId` 的区域集。 | `zoneSetId` 或 `instantAction` 的 `actionId` | 足够让 fleet control 注意到区域更新失败的时间。 |
-| 'RELEASE_LOST' | 'CRITICAL' | 丢失 'RELEASE' 区域的释放权限。 | `zoneId` | 直到 mobile robot 不再处于 'RELEASE' 区域或再次获得释放权限。 |
-| 'ZONE_ACTION_CONFLICT' | 'CRITICAL' | 区域行为与区域 action 之间存在冲突。 | 'ACTION' 区域的 `zoneId` | 直到 mobile robot 不再违反区域行为。 |
-| 'NODE_UNREACHABLE' | 'CRITICAL' | mobile robot 无法到达订单中的节点。 | `nodeId` | 直到接受新订单。 |
-| 'LOCALIZATION_ERROR' | 'FATAL' | mobile robot 未定位。 | | 直到重新获得定位。 |
-| 'NO_ROUTE_TO_TARGET' | 'WARNING' | 收到包含至少一个无法到达节点的订单。 | `orderId` | 直到接受新订单。 |
-| 'OTHER_ORDER_ACTIVE' | 'WARNING' | 在另一个订单仍处于活跃状态时收到新订单。 | `orderId` | 直到接受新订单。 |
-| 'START_NODE_OUT_OF_RANGE' | 'WARNING' | 收到第一个节点无法到达的订单。 | `orderId` | 直到接受新订单。 |
-| 'MOBILE_ROBOT_NOT_AVAILABLE' | 'WARNING' | 在非 'AUTOMATIC'、'SEMIAUTOMATIC' 或 'INTERVENED' 运行模式下收到订单。 | `orderId` | 直到运行模式允许新订单。 |
-| 'UNKNOWN_MAP_ID' | 'WARNING' | 收到包含引用未知 `mapId` 节点的订单。 | `orderId` | 直到接受新订单。 |
+| 错误类型 (Error Type)           | 错误级别 (Error level) | 描述 (Description)                                                     | 引用 (Reference)                                          | 报告时长 (Report duration)                                    |
+| :------------------------------ | :--------------------- | :--------------------------------------------------------------------- | :-------------------------------------------------------- | :------------------------------------------------------------ |
+| 'UNSUPPORTED_PARAMETER'         | 'CRITICAL'             | 收到带有不支持的可选参数的消息。                                       | 参数名称                                                  | 直到接受新订单。                                              |
+| 'NO_ORDER_TO_CANCEL'            | 'WARNING'              | mobile robot 收到 `cancelOrder` action，但没有可取消的活跃订单。       | `cancelOrder` 的 `actionId`                               | 直到接受新订单。                                              |
+| 'VALIDATION_FAILURE'            | 'WARNING'              | 收到格式错误的订单。                                                   | 如果可能，提供被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。                                              |
+| 'INVALID_ORDER_ACTION'          | 'WARNING'              | 收到包含不支持 action 的订单。                                         | 被拒绝消息的 `orderId` 和 `orderUpdateId`。               | 直到接受新订单。                                              |
+| 'INVALID_INSTANT_ACTION'        | 'WARNING'              | 收到不支持的 instant action。                                          | `instantAction` 的 `actionId`                             | 直到接受新的 instant action。                                 |
+| 'OUTDATED_ORDER_UPDATE'         | 'WARNING'              | 收到 `orderId` 正确但 `orderUpdateId` 已过期的订单。                   | 被拒绝消息的 `orderId` 和 `orderUpdateId`。               | 直到接受新订单。                                              |
+| 'SAME_ORDER_UPDATE_ID'          | 'WARNING'              | 收到重复的订单消息（相同的 `orderId` 和 `orderUpdateId`）。            | 被拒绝消息的 `orderId` 和 `orderUpdateId`。               | 直到接受新订单。                                              |
+| 'ORDER_UPDATE_FOLLOWING_CANCEL' | 'WARNING'              | 收到针对已取消订单的订单更新。                                         | 被拒绝消息的 `orderId` 和 `orderUpdateId`。               | 直到接受新订单。                                              |
+| 'OUTSIDE_OF_CORRIDOR'           | 'CRITICAL'             | 偏离了为边定义的 corridor (走廊)。                                     | `edgeId`                                                  | 直到 mobile robot 不再违反走廊边界。                          |
+| 'INSUFFICIENT_MEMORY'           | 'URGENT'               | mobile robot 没有足够的内存来处理接收到的订单。                        | 如果可能，提供被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。                                              |
+| 'DUPLICATE_MAP'                 | 'WARNING'              | 收到已存在的 `mapId` 和 `mapVersion` 的地图。                          | 重复地图的 `mapId` 和 `mapVersion`                        | 直到接受新的地图相关 instantAction。                          |
+| 'BLOCKED_ZONE_VIOLATION'        | 'CRITICAL'             | 进入 'BLOCKED' 区域。                                                  | `zoneId`                                                  | 直到 mobile robot 不再违反阻塞区域规则。                      |
+| 'DUPLICATE_ZONE_SET'            | 'WARNING'              | 收到已存在的 `zoneSetId` 的区域集。                                    | `zoneSetId` 或 `instantAction` 的 `actionId`              | 足够让 fleet control 注意到区域更新失败的时间。               |
+| 'RELEASE_LOST'                  | 'CRITICAL'             | 丢失 'RELEASE' 区域的释放权限。                                        | `zoneId`                                                  | 直到 mobile robot 不再处于 'RELEASE' 区域或再次获得释放权限。 |
+| 'ZONE_ACTION_CONFLICT'          | 'CRITICAL'             | 区域行为与区域 action 之间存在冲突。                                   | 'ACTION' 区域的 `zoneId`                                  | 直到 mobile robot 不再违反区域行为。                          |
+| 'NODE_UNREACHABLE'              | 'CRITICAL'             | mobile robot 无法到达订单中的节点。                                    | `nodeId`                                                  | 直到接受新订单。                                              |
+| 'LOCALIZATION_ERROR'            | 'FATAL'                | mobile robot 未定位。                                                  |                                                           | 直到重新获得定位。                                            |
+| 'NO_ROUTE_TO_TARGET'            | 'WARNING'              | 收到包含至少一个无法到达节点的订单。                                   | `orderId`                                                 | 直到接受新订单。                                              |
+| 'OTHER_ORDER_ACTIVE'            | 'WARNING'              | 在另一个订单仍处于活跃状态时收到新订单。                               | `orderId`                                                 | 直到接受新订单。                                              |
+| 'START_NODE_OUT_OF_RANGE'       | 'WARNING'              | 收到第一个节点无法到达的订单。                                         | `orderId`                                                 | 直到接受新订单。                                              |
+| 'MOBILE_ROBOT_NOT_AVAILABLE'    | 'WARNING'              | 在非 'AUTOMATIC'、'SEMIAUTOMATIC' 或 'INTERVENED' 运行模式下收到订单。 | `orderId`                                                 | 直到运行模式允许新订单。                                      |
+| 'UNKNOWN_MAP_ID'                | 'WARNING'              | 收到包含引用未知 `mapId` 节点的订单。                                  | `orderId`                                                 | 直到接受新订单。                                              |
 
 >表 9 - 预定义错误类型
 
@@ -1169,27 +1163,27 @@ mobile robot 应当使用预定义的错误类型来报告特定问题。下表�
 
 下表描述了 `operatingMode` 字段的值、其含义以及对 mobile robot 与 fleet control 交互的影响：
 
-| 运行模式 (Operating Mode) | 描述 (Description) |
-| :--- | :--- |
-| AUTOMATIC | Fleet control 完全控制 mobile robot。<br>mobile robot 根据来自 fleet control 的订单移动并执行 action。 |
-| SEMIAUTOMATIC | Fleet control 控制 mobile robot。<br>mobile robot 根据来自 fleet control 的订单移动并执行 action。<br>行驶速度由 HMI 控制。<br>转向处于自动控制下。 |
-| INTERVENED | Fleet control 未控制 mobile robot。mobile robot 正确报告其状态。<br>HMI 可用于控制 mobile robot 的转向、速度和搬运设备。<br>允许 fleet control 向 mobile robot 发送订单或订单更新，以便在切换回 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 运行模式后执行。fleet control 不得发送除 `cancelOrder` 以外的任何 instant action。<br>mobile robot 不得清除订单，但应当从状态中移除所有区域请求 (zone requests)，即使 mobile robot 已经处于 'RELEASE' 区域内也是如此。（*备注：如有必要，fleet control 可以继续跟踪 mobile robot 的位置，并决定是否可以为其他 mobile robot 释放空间。*）mobile robot 不得请求进入 'RELEASE' 区域的权限，也不得在 'COORDINATED_REPLANNING' 区域内请求重新规划。<br>如果进入 'INTERVENED' 运行模式对正在运行的 action 有任何影响，mobile robot 应当在状态消息中相应地反映出来。<br>如果 mobile robot 离开此运行模式且未直接切换到 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 模式，它应当根据新的运行模式行动。如果 mobile robot 离开此运行模式并直接切换到 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 模式，mobile robot 应当继续执行任何当前订单。如果 mobile robot 在 'INTERVENED' 运行模式期间检测到无法继续当前订单，它应当切换到 'MANUAL' 运行模式并据此行动。 |
-| MANUAL | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>HMI 可用于控制 mobile robot 的转向、速度和搬运设备。<br>mobile robot 的位置被发送给 fleet control。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>在此模式下，如果 mobile robot 检测到其被移动到了一个无法将 `lastNodeId` 当前值用作新订单起始节点的位置，它应当将 `lastNodeId` 设置为空字符串 ("")。 |
-| STARTUP | Fleet control 未控制 mobile robot。mobile robot 正在启动且未准备好接收订单。在启动完成前，状态消息参数可能不完整或无效。 |
-| SERVICE | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>mobile robot 应当将 `lastNodeId` 设置为空字符串 ("")。<br>授权人员可以重新配置 mobile robot。 |
-| TEACH_IN | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>mobile robot 应当将 `lastNodeId` 设置为空字符串 ("")。<br>mobile robot 正在接受示教，例如由操作员进行地图构建。 |
+| 运行模式 (Operating Mode) | 描述 (Description)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| :------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AUTOMATIC                 | Fleet control 完全控制 mobile robot。<br>mobile robot 根据来自 fleet control 的订单移动并执行 action。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| SEMIAUTOMATIC             | Fleet control 控制 mobile robot。<br>mobile robot 根据来自 fleet control 的订单移动并执行 action。<br>行驶速度由 HMI 控制。<br>转向处于自动控制下。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| INTERVENED                | Fleet control 未控制 mobile robot。mobile robot 正确报告其状态。<br>HMI 可用于控制 mobile robot 的转向、速度和搬运设备。<br>允许 fleet control 向 mobile robot 发送订单或订单更新，以便在切换回 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 运行模式后执行。fleet control 不得发送除 `cancelOrder` 以外的任何 instant action。<br>mobile robot 不得清除订单，但应当从状态中移除所有区域请求 (zone requests)，即使 mobile robot 已经处于 'RELEASE' 区域内也是如此。（*备注：如有必要，fleet control 可以继续跟踪 mobile robot 的位置，并决定是否可以为其他 mobile robot 释放空间。*）mobile robot 不得请求进入 'RELEASE' 区域的权限，也不得在 'COORDINATED_REPLANNING' 区域内请求重新规划。<br>如果进入 'INTERVENED' 运行模式对正在运行的 action 有任何影响，mobile robot 应当在状态消息中相应地反映出来。<br>如果 mobile robot 离开此运行模式且未直接切换到 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 模式，它应当根据新的运行模式行动。如果 mobile robot 离开此运行模式并直接切换到 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 模式，mobile robot 应当继续执行任何当前订单。如果 mobile robot 在 'INTERVENED' 运行模式期间检测到无法继续当前订单，它应当切换到 'MANUAL' 运行模式并据此行动。 |
+| MANUAL                    | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>HMI 可用于控制 mobile robot 的转向、速度和搬运设备。<br>mobile robot 的位置被发送给 fleet control。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>在此模式下，如果 mobile robot 检测到其被移动到了一个无法将 `lastNodeId` 当前值用作新订单起始节点的位置，它应当将 `lastNodeId` 设置为空字符串 ("")。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| STARTUP                   | Fleet control 未控制 mobile robot。mobile robot 正在启动且未准备好接收订单。在启动完成前，状态消息参数可能不完整或无效。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| SERVICE                   | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>mobile robot 应当将 `lastNodeId` 设置为空字符串 ("")。<br>授权人员可以重新配置 mobile robot。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| TEACH_IN                  | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>mobile robot 应当将 `lastNodeId` 设置为空字符串 ("")。<br>mobile robot 正在接受示教，例如由操作员进行地图构建。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 
 >表 10 - mobile robot 的运行模式
 
 | 运行模式 (Operating Mode) | Fleet Control 控制中 | 有效的状态消息内容 | 进入时清除订单 | 将 `lastNodeId` 设为空 | 进入时清除区域请求 | 允许发送 instant actions | 允许发送订单 (orders) |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| AUTOMATIC | 是 | 是 | 否 | 否 | 否 | 是 | 是 |
-| SEMIAUTOMATIC | 是 | 是 | 否 | 否 | 否 | 是 | 是 |
-| INTERVENED | 否 | 是 | 否 | 否 | 是 | 仅允许 `cancelOrder` | 是 |
-| MANUAL | 否 | 是 | 是 | 是（如果无法继续订单）| 是 | 否 | 否 |
-| STARTUP | 否 | 否 | 是 | 是 | 是 | 否 | 否 |
-| SERVICE | 否 | 是 | 是 | 是 | 是 | 否 | 否 |
-| TEACH_IN | 否 | 是 | 是 | 是 | 是 | 否 | 否 |
+| :------------------------ | :------------------- | :----------------- | :------------- | :--------------------- | :----------------- | :----------------------- | :-------------------- |
+| AUTOMATIC                 | 是                   | 是                 | 否             | 否                     | 否                 | 是                       | 是                    |
+| SEMIAUTOMATIC             | 是                   | 是                 | 否             | 否                     | 否                 | 是                       | 是                    |
+| INTERVENED                | 否                   | 是                 | 否             | 否                     | 是                 | 仅允许 `cancelOrder`     | 是                    |
+| MANUAL                    | 否                   | 是                 | 是             | 是（如果无法继续订单） | 是                 | 否                       | 否                    |
+| STARTUP                   | 否                   | 否                 | 是             | 是                     | 是                 | 否                       | 否                    |
+| SERVICE                   | 否                   | 是                 | 是             | 是                     | 是                 | 否                       | 否                    |
+| TEACH_IN                  | 否                   | 是                 | 是             | 是                     | 是                 | 否                       | 否                    |
 
 >表 11 - 运行模式概述及其影响
 
@@ -1227,28 +1221,28 @@ mobile robot 应当使用预定义的错误类型来报告特定问题。下表�
 
 action 的当前阶段应当反映在对应 `actionState` 的 `actionStatus` 字段中（见表 2）。
 
-| actionStatus | 描述 (Description) |
-| :--- | :--- |
-| 'WAITING' | mobile robot 已接收到 action，但尚未遍历相应的节点或尚未进入相应的边。 |
-| 'INITIALIZING' | action 已触发，启动准备措施。 |
-| 'RUNNING' | action 正在运行。 |
-| 'PAUSED' | action 由于 `pause` instantAction 或外部触发（mobile robot 上的暂停按钮）而暂停。 |
-| 'RETRIABLE' | 失败但可重试的 action，由订单 action 中的 `retriable` 参数指定。从此状态的转换由 `retry` 或 `skipRetry` instantAction 或外部触发。 |
-| 'FINISHED' | action 已完成。<br>通过 `actionResult` 报告结果。 |
-| 'FAILED' | 无论出于何种原因，action 无法完成。 |
+| actionStatus   | 描述 (Description)                                                                                                                 |
+| :------------- | :--------------------------------------------------------------------------------------------------------------------------------- |
+| 'WAITING'      | mobile robot 已接收到 action，但尚未遍历相应的节点或尚未进入相应的边。                                                             |
+| 'INITIALIZING' | action 已触发，启动准备措施。                                                                                                      |
+| 'RUNNING'      | action 正在运行。                                                                                                                  |
+| 'PAUSED'       | action 由于 `pause` instantAction 或外部触发（mobile robot 上的暂停按钮）而暂停。                                                  |
+| 'RETRIABLE'    | 失败但可重试的 action，由订单 action 中的 `retriable` 参数指定。从此状态的转换由 `retry` 或 `skipRetry` instantAction 或外部触发。 |
+| 'FINISHED'     | action 已完成。<br>通过 `actionResult` 报告结果。                                                                                  |
+| 'FAILED'       | 无论出于何种原因，action 无法完成。                                                                                                |
 
 >表 12 - `actionStatus` 字段的可行值
 
 所有可能的 action 状态转换如图 21 所示，下表给出了一些示例：
 
-| **从 / 到 →** | **WAITING** | **INITIALIZING** | **PAUSED** | **RUNNING** | **RETRIABLE** | **FAILED** | **FINISHED** |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **初始状态** | 排队等待稍后执行 | 立即开始初始化（如 instantAction） | - | 立即开始执行（如 instantAction） | - | instantAction 执行失败（mobile robot 未知，参数无效） | action 立即完成（如设置参数） |
-| **WAITING** | - | 需要准备（顶升、传感器通电） | - | 无需准备 | - | 通过取消 (cancel) 终止，切换到手动模式 | 达到节点/边后 action 立即成功 |
-| **INITIALIZING** | - | - | 外部触发 | 初始化完成，action 开始 | - | 初始化失败，通过取消终止，切换到手动模式 | - |
-| **PAUSED** | - | 外部触发 | - | 外部触发 | - | 通过 `cancelOrder` 终止，切换到手动模式 | - |
-| **RUNNING** | - | - | 外部触发 | - | action 未成功完成但可重试 | 通过取消终止，切换到手动模式，由于未返回期望结果导致 action 最终失败 | action 返回了期望结果，在通过 `cancelOrder` 中止后如果 action 无法中断且必须完成也可能发生。 |
-| **RETRIABLE** | - | 通过 `retry` 或外部输入重试 action | - | 通过 `retry` 或外部输入重试 action | - | 通过 `skipRetry` 失败，通过 `cancelOrder` 失败，外部触发，切换到手动模式 | 由操作员通过外部输入修复 |
+| **从 / 到 →**    | **WAITING**      | **INITIALIZING**                   | **PAUSED** | **RUNNING**                        | **RETRIABLE**             | **FAILED**                                                               | **FINISHED**                                                                                 |
+| :--------------- | :--------------- | :--------------------------------- | :--------- | :--------------------------------- | :------------------------ | :----------------------------------------------------------------------- | :------------------------------------------------------------------------------------------- |
+| **初始状态**     | 排队等待稍后执行 | 立即开始初始化（如 instantAction） | -          | 立即开始执行（如 instantAction）   | -                         | instantAction 执行失败（mobile robot 未知，参数无效）                    | action 立即完成（如设置参数）                                                                |
+| **WAITING**      | -                | 需要准备（顶升、传感器通电）       | -          | 无需准备                           | -                         | 通过取消 (cancel) 终止，切换到手动模式                                   | 达到节点/边后 action 立即成功                                                                |
+| **INITIALIZING** | -                | -                                  | 外部触发   | 初始化完成，action 开始            | -                         | 初始化失败，通过取消终止，切换到手动模式                                 | -                                                                                            |
+| **PAUSED**       | -                | 外部触发                           | -          | 外部触发                           | -                         | 通过 `cancelOrder` 终止，切换到手动模式                                  | -                                                                                            |
+| **RUNNING**      | -                | -                                  | 外部触发   | -                                  | action 未成功完成但可重试 | 通过取消终止，切换到手动模式，由于未返回期望结果导致 action 最终失败     | action 返回了期望结果，在通过 `cancelOrder` 中止后如果 action 无法中断且必须完成也可能发生。 |
+| **RETRIABLE**    | -                | 通过 `retry` 或外部输入重试 action | -          | 通过 `retry` 或外部输入重试 action | -                         | 通过 `skipRetry` 失败，通过 `cancelOrder` 失败，外部触发，切换到手动模式 | 由操作员通过外部输入修复                                                                     |
 
 >表 13 - 可能的 action 状态转换示例
 
@@ -1361,13 +1355,13 @@ JSON schema 随 VDA5050 的每个版本进行更新。如果 JSON schema 与本�
 
 对象结构表包含标识符的名称、其单位、其数据类型以及描述（如果有）。
 
-| 标识 (Identification) | 描述 (Description) |
-| :--- | :--- |
-| standard | 变量是基本数据类型 |
-| **bold** (加粗) | 变量是非基本数据类型（如 JSON 对象或数组）且单独定义 |
-| *italic* (斜体) | 变量是可选的 |
-| ***italic and bold*** (斜体加粗) | 变量是可选的且是非基本数据类型 |
-| arrayName[arrayDataType] | 变量（此处为 arrayName）是方括号中所含数据类型（此处为 arrayDataType）的数组 |
+| 标识 (Identification)            | 描述 (Description)                                                           |
+| :------------------------------- | :--------------------------------------------------------------------------- |
+| standard                         | 变量是基本数据类型                                                           |
+| **bold** (加粗)                  | 变量是非基本数据类型（如 JSON 对象或数组）且单独定义                         |
+| *italic* (斜体)                  | 变量是可选的                                                                 |
+| ***italic and bold*** (斜体加粗) | 变量是可选的且是非基本数据类型                                               |
+| arrayName[arrayDataType]         | 变量（此处为 arrayName）是方括号中所含数据类型（此处为 arrayDataType）的数组 |
 
 >表 14 - 表格符号及格式含义
 
@@ -1426,29 +1420,720 @@ A-Z a-z 0-9 _ - . :
 header 由以下各个元素组成。
 header 不是一个 JSON 对象（译者注：即其字段直接位于消息根级）。
 
+| 对象结构 (Object structure) | 数据类型 (Data type) | 描述 (Description)                                                                   |
+| :-------------------------- | :------------------- | :----------------------------------------------------------------------------------- |
+| headerId                    | uint32               | 消息的 Header ID。<br>headerId 按主题定义，每发送一条（但不一定被接收）消息递增 1。  |
+| timestamp                   | string               | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
+| version                     | string               | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。                                      |
+| manufacturer                | string               | mobile robot 的制造商。                                                              |
+| serialNumber                | string               | mobile robot 的序列号。                                                              |
+
+
+## 7.3 Implementation of the order message (order 消息的实现)
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                                                                           |
+| :-------------------------- | :---------- | :------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| headerId                    |             | uint32               | 消息的 Header ID。<br>header ID 按主题定义，每发送一条（但不一定被接收）消息递增 1。                                         |
+| timestamp                   |             | string               | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。                                         |
+| version                     |             | string               | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。                                                                              |
+| manufacturer                |             | string               | mobile robot 的制造商。                                                                                                      |
+| serialNumber                |             | string               | mobile robot 的序列号。                                                                                                      |
+| orderId                     |             | string               | 订单标识。<br>用于标识属于同一订单的多个订单消息。                                                                           |
+| orderUpdateId               |             | uint32               | 订单更新标识。<br>对于每个 `orderId` 应当是唯一的，且新订单从 0 开始。<br>如果订单更新被拒绝，该字段应当在相应的错误中传递。 |
+| *orderDescription*          |             | string               | 额外的可读信息，仅用于可视化目的；不得用于任何逻辑过程。                                                                     |
+| **nodes [node]**            |             | array                | 完成订单所需遍历的节点 (node) 对象数组。                                                                                     |
+| **edges [edge]**            |             | array                | 完成订单所需遍历的边 (edge) 对象数组。                                                                                       |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                                                                                                               |
+| :-------------------------- | :---------- | :------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **node** {                  |             | JSON object          |                                                                                                                                                                  |
+| nodeId                      |             | string               | 节点的唯一标识符。<br>在一条订单消息中可以多次引用同一个节点。`sequenceId` 用于区分遍历的顺序。                                                                  |
+| sequenceId                  |             | uint32               | 用于跟踪订单中节点和边顺序的数字，并简化订单更新。<br>主要目的是区分在同一个 `orderId` 中多次经过的节点。<br>`sequenceId` 在节点和边之间共享，并定义了遍历顺序。 |
+| *nodeDescriptor*            |             | string               | 节点的附加信息。                                                                                                                                                 |
+| released                    |             | boolean              | "true" 表示该节点是 base（基准）的一部分。<br>"false" 表示该节点是 horizon（远景）的一部分。                                                                     |
+| ***nodePosition***          |             | JSON object          | 节点位置。<br>对于不需要节点位置的 mobile robot 类型（例如有轨导引机器人）是可选的。                                                                             |
+| **actions [action]** <br> } |             | array                | 在节点上执行的 action 数组。<br>如果不需要 action，则为空数组。                                                                                                  |
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| :-------------------------- | :---------- | :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **nodePosition** {          |             | JSON object          | 在特定于项目的全局世界坐标系中的地图上定义位置。<br>每一层楼都有自己的地图。<br>所有地图应当使用相同的特定于项目的全局原点。                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| x                           | m           | float64              | 地图上相对于全局项目特定坐标系的 X 位置。<br>精度取决于具体实现。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| y                           | m           | float64              | 地图上相对于全局项目特定坐标系的 Y 位置。<br>精度取决于具体实现。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| *theta*                     | rad         | float64              | 范围：[-Pi ... Pi] <br><br>mobile robot 在节点上应当匹配的绝对朝向，以便该节点被视为已遍历。<br>如果定义了此值，mobile robot 应当匹配此节点上的朝向。<br>如果前一条边禁止旋转，mobile robot 应当在节点上旋转。<br>如果后一条边定义了不同的朝向但禁止旋转，mobile robot 应当在进入边之前，在节点上旋转到边所要求的旋转角度。                                                                                                                                                                                                                                         |
+| ***allowedDeviationXY***    | m           | JSON object          | 指示 mobile robot 在节点位置匹配的精确程度，以便该节点被视为已遍历。<br>（另请参阅 [订单取消](#613-order-cancellation) 和 [节点遍历](#662-traversal-of-nodes-and-enteringleaving-edges-triggering-of-actions) 章节）。                                                                                                                                                                                                                                                                                                                                              |
+| *allowedDeviationTheta*     | rad         | float64              | 范围：[0.0 ... Pi] <br><br>如果定义了此值，指示 mobile robot 在节点朝向匹配的精确程度，以便该节点被视为已遍历。<br>最低可接受角度为 *`theta` - `allowedDeviationTheta`*，最高可接受角度为 *`theta` + `allowedDeviationTheta`*。如果未指定 `theta`，则对 mobile robot 的朝向没有要求。<br>如果 = 0.0：不允许偏差，这意味着 mobile robot 应当在技术允许的范围内尽可能精确地达到节点朝向。即使 `allowedDeviationTheta` 小于 mobile robot 的技术公差，此规则也适用。如果 mobile robot 支持此属性，但 fleet control 未为此节点定义，则 mobile robot 应当假设此值为 0.0。 |
+| mapId                       |             | string               | 位置所引用的地图的唯一标识。<br>每张地图都有相同的特定于项目的全局坐标原点。<br>当 mobile robot 使用电梯时（例如从出发层到目标层），它将从出发层的地图上消失，并在目标层地图相关的电梯节点处生成。                                                                                                                                                                                                                                                                                                                                                                  |
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                                                                                                                                                                                                                                                                                                                                                                          |
+| :-------------------------- | :---------- | :------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **allowedDeviationXY** {    |             | JSON object          | 指示 mobile robot 在节点位置匹配的精确程度，以便该节点被视为已遍历。<br> 如果 `a` = `b` = 0.0：不允许偏差，这意味着 mobile robot 应当在技术允许的范围内尽可能精确地让控制点到达或通过节点位置。即使 `allowedDeviationXY` 小于 mobile robot 技术上可行的公差，此规则也适用。如果 mobile robot 支持此属性，但 fleet control 未为此节点定义，则 mobile robot 应当假设 `a` 和 `b` 的值为 0.0。<br> 节点的坐标定义了椭圆的中心。 |
+| a                           | m           | float64              | 椭圆半长轴的长度（单位：米）。                                                                                                                                                                                                                                                                                                                                                                                              |
+| b                           | m           | float64              | 椭圆半短轴的长度（单位：米）。                                                                                                                                                                                                                                                                                                                                                                                              |
+| theta <br>}                 | rad         | float64              | 旋转角度（从正水平轴到项目特定坐标系内椭圆长轴的角度）。                                                                                                                                                                                                                                                                                                                                                                    |
+
+| 对象结构 (Object structure)              | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                                                                                                                                                                 |
+| :--------------------------------------- | :---------- | :------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **action** {                             |             | JSON object          | 描述 mobile robot 可以执行的 action。                                                                                                                                                                              |
+| actionType                               |             | string               | action 的类型。对于预定义的 action，其定义在表 4 的第一列中。<br> 标识 action 的功能。                                                                                                                             |
+| actionId                                 |             | string               | 用于标识 action 并将其映射到状态中 `actionState` 的唯一 ID。<br>建议：使用 UUID。                                                                                                                                  |
+| *actionDescriptor*                       |             | string               | 用户定义的、易于理解的名称或描述。不应用于逻辑目的。                                                                                                                                                               |
+| blockingType                             |             | string               | 枚举 {'NONE', 'SINGLE', 'SOFT', 'HARD'}: <br> 'NONE': 允许行驶和其他 action；<br> 'SINGLE': 允许行驶但不允许其他 action；<br>'SOFT': 允许其他 action 但不允许行驶；<br>'HARD': 该 action 是当时唯一允许的 action。 |
+| ***actionParameters [actionParameter]*** |             | array                | 指定 action 的 actionParameter 对象数组，例如 "deviceId", "loadId", "external triggers"。<br><br> 示例实现可以在 [7.3.1 Format of action parameters]((#731-format-of-action-parameters)) 中找到。                  |
+| *retriable* <br> }                       |             | boolean              | "true": action 如果失败可以进入 RETRIABLE 状态。<br>"false": action 失败后直接进入 FAILED 状态。<br>默认值: "false"。                                                                                              |
+
+| 对象结构 (Object structure)         | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| :---------------------------------- | :---------- | :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **edge** {                          |             | JSON object          | 两个节点之间的有向连接。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| edgeId                              |             | string               | 边的唯一标识符。<br>在一条订单消息中可以多次引用同一条边。`sequenceId` 用于区分遍历的顺序。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| sequenceId                          |             | uint32               | 用于跟踪订单中节点和边顺序的数字，并简化订单更新。<br>`sequenceId` 在节点和边之间共享，并定义了遍历顺序。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| *edgeDescriptor*                    |             | string               | 用户定义的、易于理解的名称或描述。不应用于逻辑目的。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| released                            |             | boolean              | "true" 表示该边是 base 的一部分。<br>"false" 表示该边是 horizon 的一部分。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| *maximumSpeed*                      | m/s         | float64              | 边上允许的最大速度。<br>速度由 mobile robot 的最快测量值定义。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| *maximumMobileRobotHeight*          | m           | float64              | 边上允许的 mobile robot（包括负载）的最大高度。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| *minimumLoadHandlingDeviceHeight*   | m           | float64              | 边上允许的负载处理设备 (LHD) 的最小高度。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| *orientation*                       | rad         | float64              | mobile robot 在边轨迹上的朝向。`orientationType` 的值定义了应当将其解释为相对于全局项目特定地图坐标系，还是相对于边轨迹的切线方向。在切向情况下，0.0 表示向前行驶，PI 表示向后行驶。<br>示例：朝向 Pi/2 rad 可能导致 90 度的旋转。<br><br>如果 mobile robot 以不同的朝向开始，且 `reachOrientationBeforeEntering` 设置为 "false"，则在边上将 mobile robot 旋转到目标朝向。<br>如果 `reachOrientationBeforeEntering` 为 "true"，则在进入边之前进行旋转。<br>如果无法做到这一点，应当拒绝该订单。<br><br>如果未定义轨迹，则将朝向和任何旋转应用于连接边的两个节点的直接路径上。<br>如果未定义朝向，mobile robot 可以在边上采用任何朝向。 |
+| *orientationType*                   |             | string               | 枚举 {'GLOBAL', 'TANGENTIAL'}: <br>'GLOBAL': 相对于全局项目特定地图坐标系，仅对全向 mobile robot 有效。<br>'TANGENTIAL': 相对于边轨迹的切线。示例用法：对于全向 mobile robot，任何朝向都是可能的；对于差速驱动 mobile robot，可能只有 0.0（向前）和 Pi（向后）的朝向是可能的。<br><br>默认值: 'TANGENTIAL'。                                                                                                                                                                                                                                                                                                                           |
+| *direction*                         |             | string               | 为导航类型为物理线导的 mobile robot 在分叉口设置方向，可能的值应当预先定义（针对单个 mobile robot）。<br> 示例："left", "right", "straight", "580 Hz"。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| *reachOrientationBeforeEntering*    |             | boolean              | 此参数仅对全向 mobile robot 有效。"true": 应当在进入边之前达到目标边朝向。<br>"false": mobile robot 可以在边上旋转到目标朝向。<br>默认值: "false"。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| *maximumRotationSpeed*              | rad/s       | float64              | 最大旋转速度<br><br>可选：<br>如果未设置，则无限制。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ***trajectory***                    |             | JSON object          | 该边的轨迹 JSON 对象，表示为 NURBS。<br>定义了 mobile robot 在边的起始节点和终止节点之间移动的路径。<br><br>可选：<br>如果 mobile robot 无法处理轨迹，或者如果 mobile robot 自行规划轨迹，则可以省略。                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| *length*                            | m           | float64              | 从起始节点到终止节点的路径长度。<br><br>可选：<br>该值被有轨导引机器人用于在到达停止位置前降低速度。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ***corridor***                      |             | JSON object          | mobile robot 可以偏离其轨迹的边界定义，例如为了避障。<br>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **actions [action]** <br><br><br> } |             | array                | 在边上执行的 action 数组。<br>如果不需要 action，则为空数组。<br>由边触发的 action 仅在 mobile robot 遍历触发该 action 的边期间处于活跃状态。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+
+| 对象结构 (Object structure)      | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                                                                                                                                                                                                                                                                                                                                                                   |
+| :------------------------------- | :---------- | :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **trajectory** {                 |             | JSON object          |                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| *degree*                         |             | uint32               | 定义轨迹的 NURBS 曲线的阶数。<br><br>范围: [1 ... uint32.max]<br>默认值: 1                                                                                                                                                                                                                                                                                                                                           |
+| ***knotVector [float64]***       |             | array                | NURBS 的节点向量数组。<br>`knotVector` 的大小正好比 `controlPoints` 的大小大 `degree` + 1。<br>第一个和最后一个节点的重度 (multiplicities) 都必须是 `degree` + 1（准均匀/夹紧 NURBS）。<br>除第一个或最后一个节点外的其他节点的重度不得大于 `degree`（连续性）。<br><br>节点范围: [0.0 ... 1.0]<br>默认值: 从 0.0 到 1.0 的等距节点，第一个和最后一个节点的重度为 `degree` + 1，所有其他节点的重度为 1（均匀节点）。 |
+| **controlPoints [controlPoint]** |             | array                | 定义 NURBS 控制点的 controlPoint 对象数组，显式包含起点和终点（准均匀 NURBS）。<br>控制点的数量至少需要为 `degree` + 1。                                                                                                                                                                                                                                                                                             |
+| }                                |             |                      |                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                     |
+| :-------------------------- | :---------- | :------------------- | :--------------------------------------------------------------------- |
+| **controlPoint** {          |             | JSON object          |                                                                        |
+| x                           | m           | float64              | 项目特定坐标系中描述的 X 坐标。                                        |
+| y                           | m           | float64              | 项目特定坐标系中描述的 Y 坐标。                                        |
+| *weight*                    |             | float64              | 控制点对曲线的权重。<br><br>范围: ]0.0 ... float64.max]<br>默认值: 1.0 |
+| }                           |             |                      |                                                                        |
+
+| 对象结构 (Object structure)  | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description)                                                                                                                                                                                                            |
+| :--------------------------- | :---------- | :------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ***corridor*** {             |             | JSON object          |                                                                                                                                                                                                                               |
+| leftWidth                    | m           | float64              | 范围: [0.0 ... float64.max]<br>定义相对于 mobile robot 轨迹向左的走廊宽度，以米为单位（见图 10）。                                                                                                                            |
+| rightWidth                   | m           | float64              | 范围: [0.0 ... float64.max]<br>定义相对于 mobile robot 轨迹向右的走廊宽度，以米为单位（见图 10）。                                                                                                                            |
+| *corridorReferencePoint*     |             | string               | 定义边界是对 mobile robot 的运动学中心有效还是对轮廓 (contour) 有效。如果未指定，则边界对 mobile robot 的运动学中心有效。<br> 枚举 { 'KINEMATIC_CENTER' , 'CONTOUR' }                                                         |
+| *releaseRequired*            |             | boolean              | 可选标志，指示机器人是否应当向 fleet control 请求批准。<br>默认值: "false"。                                                                                                                                                  |
+| *releaseLossBehavior* <br> } |             | string               | 枚举 { 'STOP' , 'RETURN' }<br>定义当走廊释放过期或被 fleet control 撤销时，机器人的行为方式。<br>'STOP': mobile robot 应当停止并等待人工干预。'RETURN': mobile robot 应当返回到其偏离的边的预定义轨迹上。<br>默认值: 'STOP'。 |
+
+### 7.3.1 Format of action parameters (action 参数的格式)
+
+错误、信息和 action 的参数被设计为包含键值对的 JSON 对象数组。
+
+| **字段 (Field)**      | **数据类型 (data type)**                                 | **描述 (description)**                                              |
+| :-------------------- | :------------------------------------------------------- | :------------------------------------------------------------------ |
+| **actionParameter** { | JSON object                                              | 指定 action 的 actionParameter，例如 deviceId, loadId, 外部触发器。 |
+| key                   | string                                                   | 参数的键。                                                          |
+| value <br><br><br>}   | array, boolean, number, integer, string, object 中的一种 | 属于该键的参数值。                                                  |
+
+针对具有 stationType 和 loadType 键值对的 "someAction" 动作，其 `actionParameter` 示例如下：
+
+```json
+"actionParameters":[
+{"key":"stationType", "value": "floor"},
+{"key":"weight", "value": 8.5},
+{"key": "loadType", "value": "pallet_eu"}
+]
+```
+
+采用所提议的 "key": "actualKey", "value": "actualValue" 方案的原因是为了保持实现的通用性。"actualValue" 可以是任何可能的 JSON 数据类型，例如数组、布尔值、整数、数值、字符串甚至是一个对象。
+
+
+## 7.4 Implementation of the instantAction message (instantAction 消息的实现)
+
+| 对象结构 (Object structure) | 数据类型 (Data type) | 描述 (Description)                                                                    |
+| :-------------------------- | :------------------- | :------------------------------------------------------------------------------------ |
+| headerId                    | uint32               | 消息的 Header ID。<br> header ID 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
+| timestamp                   | string               | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。  |
+| version                     | string               | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。                                       |
+| manufacturer                | string               | mobile robot 的制造商。                                                               |
+| serialNumber                | string               | mobile robot 的序列号。                                                               |
+| **actions [action]**        | array                | 需要立即执行且不属于常规订单的 action 数组。                                          |
+
+`action` 对象在 [7.3 Implementation of the order message](#73-implementation-of-the-order-message) 中定义。
+
+
+## 7.5 Implementation of the response message (response 消息的实现)
+
+| 对象结构/标识符 (Object structure/Identifier) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- |
+| headerId | uint32 | 消息的 Header ID。<br> headerId 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
+| timestamp | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
+| version | string | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。 |
+| manufacturer | string | mobile robot 的制造商。 |
+| serialNumber | string | mobile robot 的序列号。 |
+| **responses[response]** | array | response 对象的数组。 |
+
+| 对象结构/标识符 (Object structure/Identifier) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- |
+| **response** { | JSON object | 包含 fleet control 对特定请求的回答的对象。 |
+| requestId | string | 在所有活跃请求中对该 mobile robot 唯一的标识符。 |
+| grantType | enum | 枚举 {'GRANTED','QUEUED','REVOKED','REJECTED'}<br>'GRANTED': fleet control 批准了请求。'REVOKED': fleet control 撤销之前授予的请求。'REJECTED': fleet control 拒绝请求。'QUEUED': 确认 mobile robot 向 fleet control 提出的请求，但尚未给出许可。请求已被添加到某种队列中。 |
+| *leaseExpiry* <br><br> } | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。仅在批准请求的响应中发送发布过期的时间戳。 |
+
+
+## 7.6 Implementation of the zoneSet message (zoneSet 消息的实现)
+
 | 对象结构 (Object structure) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- |
+| headerId | uint32 | 消息的 Header ID。<br> header ID 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
+| timestamp | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
+| version | string | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。 |
+| manufacturer | string | mobile robot 的制造商。 |
+| serialNumber | string | mobile robot 的序列号。 |
+| **zoneSet** | JSON object| 区域集对象。 |
+
+| 对象结构 (Object structure) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- |
+| **zoneSet** { | JSON object | 详细描述特定地图的区域集。 | 
+| mapId | string | 该区域集所细化的地图的全球唯一标识符。 | 
+| zoneSetId | string | 区域集的全球唯一标识符。 |
+| *zoneSetDescriptor* | string | 用户定义的、易于理解的名称或描述。不应用于逻辑目的。 | 
+| **zones[zone]** <br> } | array | zone 对象的数组。 | 
+
+
+## 7.7 Implementation of the connection message (connection 消息的实现)
+
+| 标识符 (Identifier) | 数据类型 (Data type) | 描述 (Description) |
 | :--- | :--- | :--- |
 | headerId | uint32 | 消息的 Header ID。<br>headerId 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
 | timestamp | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
 | version | string | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。 |
 | manufacturer | string | mobile robot 的制造商。 |
 | serialNumber | string | mobile robot 的序列号。 |
+| connectionState | string | 枚举 {'ONLINE', 'OFFLINE', 'HIBERNATING', 'CONNECTION_BROKEN'}<br><br>'ONLINE': mobile robot 与 broker 之间的连接处于活跃状态。<br><br>'OFFLINE': mobile robot 与 broker 之间的连接已以协调的方式离线。<br><br>'HIBERNATING': mobile robot 进入低功耗状态并停止发送状态消息。与 MQTT broker 的连接应当保持活跃。此模式旨在节省功耗 or 减少通信。mobile robot 稍后可以在受命或通过配置的唤醒机制切换到 ONLINE 状态。<br><br> 'CONNECTION_BROKEN': mobile robot 与 broker 之间的连接意外终止。 |
 
 
-## 7.3 Implementation of the order message (order 消息的实现)
+## 7.8 Implementation of the state message (state 消息的实现)
 
 | 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
 | :--- | :--- | :--- | :--- |
-| headerId | | uint32 | 消息的 Header ID。<br>header ID 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
+| headerId | | uint32 | 消息的 Header ID。<br> headerId 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
 | timestamp | | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
 | version | | string | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。 |
 | manufacturer | | string | mobile robot 的制造商。 |
 | serialNumber | | string | mobile robot 的序列号。 |
-| orderId | | string | 订单标识。<br>用于标识属于同一订单的多个订单消息。 |
-| orderUpdateId | | uint32 | 订单更新标识。<br>对于每个 `orderId` 应当是唯一的，且新订单从 0 开始。<br>如果订单更新被拒绝，该字段应当在相应的错误中传递。 |
-| *orderDescription* | | string | 额外的可读信息，仅用于可视化目的；不得用于任何逻辑过程。 |
-| **nodes [node]** | | array | 完成订单所需遍历的节点 (node) 对象数组。 |
-| **edges [edge]** | | array | 完成订单所需遍历的边 (edge) 对象数组。 |
+| ***maps[map]*** | | array | 当前存储在 mobile robot 上的 map 对象的数组。 |
+| ***zoneSets[zoneSet]*** | | Array of zoneSet | 当前存储在 mobile robot 上的 zoneSet 对象的数组。 |
+| orderId | | string | 当前订单或之前完成订单的唯一标识符。<br>在收到新订单之前保留 orderId。<br>如果没有可用的之前的 orderId，则为空字符串 ("")。 |
+| orderUpdateId | | uint32 | 订单更新标识符，用于标识 mobile robot 已接受订单更新。<br>如果没有可用的之前的 orderUpdateId，则为 "0"。 |
+| lastNodeId | | string | 上一个到达节点的节点 ID，或者如果 mobile robot 当前位于节点上，则为当前节点 ID（例如 "node7"）。如果没有可用的 `lastNodeId`，则为空字符串 ("")。 |
+| lastNodeSequenceId | | uint32 | 上一个到达节点的序号 (Sequence ID)，或者如果 mobile robot 当前位于节点上，则为当前节点的序号。 <br>该值仅在 `lastNodeId` 不是空字符串 ("") 时有效。如果 `lastNodeId` 是空字符串 ("")，则 `lastNodeSequenceId` 的值可以是任意的且应被忽略。 |
+| **nodeStates [nodeState]** | | array | 为完成订单而需要遍历的 nodeState 对象的数组（如果空闲则为空数组）。 |
+| **edgeStates [edgeState]** | | array | 为完成订单而需要遍历的 edgeState 对象的数组（如果空闲则为空数组）。 |
+| ***plannedPath*** | | JSON object | 以 NURBS 形式表示机器人当前活跃订单中的路径。 |
+| ***intermediatePath*** | | JSON object | 表示移动机器人能够通过其传感器感知到的更近路标点的预计到达时间。 |
+| ***mobileRobotPosition*** | | JSON object | 移动机器人在地图上的当前位置。<br><br>可选：对于不具备定位能力的移动机器人（例如线路引导的移动机器人）可以省略。 |
+| ***velocity*** | | JSON object | 移动机器人在其坐标系下的速度。 |
+| ***loads [load]*** | | array | 移动机器人当前处理的载荷。<br><br>可选：如果移动机器人无法确定载荷状态，则应完全省略此字段，而不是报告为空数组。<br>如果移动机器人可以确定载荷状态，但数组为空，则认为移动机器人处于空载状态。 |
+| driving | | boolean | "true"：表示移动机器人正在行驶（手动或自动）。此处不包括其他运动（例如升降运动）。<br>"false"：表示移动机器人未在行驶。 |
+| *paused* | | boolean | "true"：移动机器人当前处于暂停状态，可能是因为按下了移动机器人上的物理按钮，或者是由于执行了 instantAction。<br>移动机器人可以恢复订单。<br><br>"false"：移动机器人当前不处于暂停状态。 |
+| *newBaseRequest* | | boolean | "true"：移动机器人快到 Base 的尽头，如果没有发送新的 Base，它将减速。<br>触发 fleet control 发送新的 Base。<br><br>"false"：不需要 Base 更新。 |
+| ***zoneRequests [zoneRequest]*** | | array | 移动机器人上当前活跃的 zoneRequest 对象的数组。<br>如果没有活跃的区域请求，则为空数组。 |
+| ***edgeRequests [edgeRequest]*** | | array | 移动机器人上当前活跃的 edgeRequest 对象的数组。<br>如果没有活跃的边请求，则为空数组。 |
+| *distanceSinceLastNode* | m | float64 | 用于线路引导的移动机器人，表示其驶过 lastNodeId 后的距离。<br>单位：米。 |
+| **actionStates [actionState]** | | array | 包含当前订单中所有动作的数组。动作状态在订单保持活跃期间保留，并在接受新订单时清除。<br>这可能包括之前节点中仍在进行中的动作。<br><br>当动作完成时，会发布一条更新的状态消息，其 `actionStatus` 设置为 'FINISHED'，如果适用，还包含相应的 `resultDescription`。 |
+| **instantActionStates [actionState]** | | array | 移动机器人接收到的所有即时动作状态的数组。即时动作保留在状态消息中，直到执行动作 clearInstantActions。如果列表变得太长而无法管理，机器人可能会抛出 errorType 'INSTANT_ACTION_STATES_FULL' 且 errorLevel 为 'URGENT'。建议 fleet control 在实际可行的情况下尽快清除此列表。 |
+| ***zoneActionStates [actionState]*** | | array | 所有处于终止状态或当前正在运行的区域动作状态的数组；共享即将进行的动作是可选的。区域动作状态保留在状态消息中，直到执行动作 clearZoneActions。如果支持动作区域，则此字段是必填的。如果列表变得太长而无法管理，机器人可能会抛出 errorType 'ZONE_ACTION_STATES_FULL' 且 errorLevel 为 'URGENT'。建议 fleet control 在实际可行的情况下尽快清除此列表。 |
+| **powerSupply** | | JSON object | 包含所有与电源相关的信息。 |
+| operatingMode | | string | 枚举 {'STARTUP', 'AUTOMATIC', 'SEMIAUTOMATIC', 'INTERVENED', 'MANUAL', 'SERVICE', 'TEACH_IN'}<br>更多信息请参见 [6.6.6 Operating Mode](#666-operating-mode) 章节。 |
+| **errors [error]** | | array | error 对象的数组。<br>移动机器人的所有活跃错误都应在数组中。<br>空数组表示移动机器人没有活跃错误。 |
+| ***information [info]*** | | array | info 对象的数组。<br>空数组表示移动机器人没有信息。<br>这应仅用于可视化或调试——不得用于 fleet control 的逻辑。 |
+| **safetyState** | | JSON object | 包含所有与安全相关的信息。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **map**{ | | JSON object | |
+| mapId | | string | 描述移动机器人工作空间定义区域的地图 ID。 |
+| mapVersion | | string | 地图的版本。 |
+| mapStatus | | string | 枚举 {'ENABLED', 'DISABLED'}<br>'ENABLED': 表示该地图当前在移动机器人上正活跃使用。最多只能有一个具有相同 `mapId` 的地图状态设置为 'ENABLED'。<br>'DISABLED': 表示该地图版本当前未在移动机器人上启用，因此可以根据请求启用或删除。 |
+| *mapDescriptor* <br>}| | string | 用户定义的、易于理解的名称或描述。不应用于逻辑目的。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **zoneSet**{ | | JSON object | |
+| zoneSetId | | string | 当前为地图启用的区域集的唯一标识符。<br>仅当移动机器人没有为相应地图定义任何区域时，此字段才应留空。 |
+| mapId | | string | 相应地图的标识符。 |
+| zoneSetStatus <br>}| | string | 枚举 {ENABLED, DISABLED}<br>'ENABLED': 表示该区域集当前在移动机器人上正活跃使用。每个地图最多只能有一个区域集状态设置为 'ENABLED'。<br>'DISABLED': 表示该区域集当前未在移动机器人上启用，因此可以由 fleet control 启用或删除。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **nodeState** { | JSON object | | |
+| nodeId | | string | 节点的唯一标识符。<br>同一个节点可以在一条状态消息中被多次引用。使用 `sequenceId` 来区分遍历的顺序。 |
+| sequenceId | | uint32 | 节点的 `sequenceId`，用于区分具有相同 nodeId 的多个节点。 |
+| *nodeDescriptor* | | string | 用户定义的、易于理解的名称或描述。不应用于逻辑目的。 |
+| released | | boolean | "true" 表示该节点是 Base 的一部分。<br>"false" 表示该节点是 Horizon 的一部分。 |
+| ***nodePosition*** <br><br> }| | JSON object | 节点位置。<br>可选：fleet control 拥有此信息。可以额外发送，例如用于调试目的。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **nodePosition** { | | JSON object | 在项目特定坐标系中定义地图上的位置。<br>每层楼都有自己的地图。<br>所有地图应使用相同的项目特定全局原点。 |
+| x | m | float64 | 项目特定坐标系中地图上的 X 位置。<br>精度取决于具体实现。 |
+| y | m | float64 | 项目特定坐标系中地图上的 Y 位置。<br>精度取决于具体实现。 |
+| *theta* | rad | float64 | 范围：[-Pi ... Pi]<br><br>移动机器人在节点上应匹配的绝对朝向，以便被认为已遍历该节点。<br>可选：移动机器人可以自行规划路径。<br>如果定义了此值，移动机器人应在该节点上保持 theta 角。<br>如果前一条边不允许旋转，移动机器人应在节点上进行旋转。<br>如果后一条边定义了不同的朝向但不允许旋转，移动机器人在进入该边之前应在节点上旋转到该边所需的旋转角度。 |
+| mapId | | string | 引用位置的地图的唯一标识。 <br>每个地图都具有相同的项目特定全局坐标原点。<br>当移动机器人使用电梯（例如从出发层到目标层）时，它将从出发层的地图上消失，并出现在目标层地图的相关电梯节点上。 |
+| } | | | |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **edgeState** { | | JSON object | |
+| edgeId | | string | 边的唯一标识符。<br>同一个边可以在一条状态消息中被多次引用。使用 `sequenceId` 来区分遍历的顺序。 |
+| sequenceId | | uint32 | 边的 `sequenceId`，用于区分具有相同 edgeId 的多个边。 |
+| *edgeDescriptor* | | string | 用户定义的、易于理解的名称或描述。不应用于逻辑目的。 |
+| released | | boolean | "true" 表示该边是 Base 的一部分。<br>"false" 表示该边是 Horizon 的一部分。 |
+| ***trajectory*** <br><br> } | | JSON object | 报告在布局中预先定义的轨迹，或者是作为订单的一部分为此边发送的轨迹。<br><br>轨迹应以 NURBS 形式进行通信，定义见 [7.3 Implementation of the order message](#73-implementation-of-the-order-message) 章节。<br><br>轨迹段从移动机器人进入边的点开始，到移动机器人报告终点节点已被遍历的点结束。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **plannedPath** { | | JSON object | |
+| **trajectory** | | JSON object | 轨迹应以 NURBS 形式进行通信，定义见 [7.3 Implementation of the order message](#73-implementation-of-the-order-message) 章节。 |
+| ***traversedNodes[nodeId]*** | | array | 在共享的规划路径中遍历的当前执行订单中所传达的 `nodeId` 数组。 |
+| } | | | |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **trajectory** { | | JSON object | |
+| *degree* | | uint32 | 定义轨迹的 NURBS 曲线的阶数。<br><br>范围：[1 ... uint32.max]<br>默认值：1 |
+| ***knotVector [float64]*** | | array | NURBS 的节点向量数组。<br>`knotVector` 的大小正好比 `controlPoints` 的大小大 `degree` + 1。<br>第一个和最后一个节点的重度必须均为 `degree` + 1（准均匀/夹紧 NURBS）。<br>除第一个或最后一个节点外的节点重度不得大于 `degree`（连续性）。<br><br>节点范围：[0.0 ... 1.0]<br>默认值：从 0.0 到 1.0 的等距节点，第一个和最后一个节点的重度为 `degree` + 1，所有其他节点的重度为 1（均匀节点）。 |
+| **controlPoints [controlPoint]** | | array | 定义 NURBS 控制点的 controlPoint 对象数组，显式包含起点和终点（夹紧 NURBS）。<br>控制点的数量至少需要为 `degree` + 1。 |
+| } | | | |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **controlPoint** { | | JSON object | |
+| x | m | float64 | 项目特定坐标系中描述的 X 坐标。 |
+| y | m | float64 | 项目特定坐标系中描述的 Y 坐标。 |
+| *weight* | | float64 | 控制点在曲线上的权重。<br><br>范围：]0.0 ... float64.max]<br>默认值：1.0 |
+| } | | | |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **intermediatePath** { | | JSON object | |
+| **polyline[waypoint]** | | array | 折线各段终点的数组。 |
+| } | | | |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **waypoint** { | | JSON object | 定义折线内某段的终点。 |
+| x | m | float64 | 项目特定坐标系中描述的 X 坐标。 |
+| y | m | float64 | 项目特定坐标系中描述的 Y 坐标。 |
+| *theta* | rad | float64 | 项目特定坐标系中移动机器人的绝对朝向。<br>范围：[-Pi ... Pi] |
+| eta | | string | 预计到达/遍历时间。ETA 格式为 `timestamp` (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
+| } | | | |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **mobileRobotPosition** { | | JSON object | 定义在项目特定坐标系下地图上的位置。每层楼都有自己的地图。 |
+| x | m | float64 | 参考项目特定坐标系，在地图上的 X 位置。<br>精度取决于具体实现。 |
+| y | m | float64 | 参考项目特定坐标系，在地图上的 Y 位置。<br>精度取决于具体实现。 |
+| theta | | float64 | 范围：[-Pi ... Pi]<br><br>移动机器人的朝向。 |
+| mapId | | string | 引用位置的地图的唯一标识。<br><br>每个地图都具有相同的坐标原点。<br>当移动机器人使用电梯从出发层到目标层时，它离开出发层的地图，并出现在目标层地图上对应的电梯节点上。 |
+| localized | | boolean | "true": 移动机器人已定位。`x`、`y` 和 `theta` 是可信的。<br>"false": 移动机器人未定位。`x`、`y` 和 `theta` 不可信。<br>仅当移动机器人无法再确定其位置时，状态才应更改为 "false"。移动机器人应通过错误（`errorType` = 'LOCALIZATION_ERROR'，`errorLevel` = 'FATAL'）报告此状态。当此值设置为 "false" 时，移动机器人不得恢复自动行驶或继续执行订单。 |
+| *localizationScore* | | float64 | 范围：[0.0 ... 1.0]<br>描述定位质量，因此可供 SLAM 移动机器人使用，例如用于描述当前位置信息的准确程度。<br>0.0：最低可能置信度<br>1.0：最高可能置信度。<br>仅用于日志记录和可视化目的。 |
+| *deviationRange* | m | float64 | 位置偏差范围的值，单位：米。<br>仅用于日志记录和可视化目的。 |
+| } | | | |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **velocity** { | | JSON object | |
+| *vx* | m/s | float64 | 移动机器人在其 X 方向上的速度。 |
+| *vy* | m/s | float64 | 移动机器人在其 Y 方向上的速度。 |
+| *omega* <br>}| rad/s | float64 | 移动机器人绕其 Z 轴的转速。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **load** { | | JSON object | |
+| *loadId* | | string | 载荷的唯一标识（例如条形码或 RFID）。<br><br>如果移动机器人可以识别载荷但尚未识别，则此字段为空。<br><br>如果移动机器人无法识别载荷，则为可选。 |
+| *loadType* | | string | 载荷类型。 |
+| *loadPosition* | | string | 指示使用了移动机器人的哪个载荷处理/承载单元，例如，在移动机器人具有多个放置/搬运载荷位置的情况下。<br><br>例如："front"、"back"、"positionC1" 等。<br><br>对于只有一个载荷位置 (loadPosition) 的移动机器人，此项可选。 |
+| ***boundingBoxReference*** | | JSON object | 包围盒位置的参考点。<br>参考点始终是包围盒底面（高度 = 0 处）的中心，并按移动机器人坐标系的坐标进行描述。 |
+| ***loadDimensions*** | | JSON object | 载荷包围盒的尺寸，单位：米。 |
+| *weight* <br>} | kg | float64 | 范围：[0.0 ... float64.max]<br><br>载荷的绝对重量，单位：kg。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **boundingBoxReference** { | | JSON object | 包围盒位置的参考点。<br>参考点始终是包围盒底面（高度 = 0 处）的中心，并按移动机器人坐标系的坐标进行描述。 |
+| x | | float64 | 参考点的 X 坐标。 |
+| y | | float64 | 参考点的 Y 坐标。 |
+| z | | float64 | 参考点的 Z 坐标。 |
+| *theta* <br> } | | float64 | 载荷包围盒的朝向。<br>对于牵引车、拖车队等非常重要。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **loadDimensions** { | | JSON object | 载荷包围盒的尺寸，单位：米。 |
+| length | m | float64 | 载荷包围盒的绝对长度（沿移动机器人坐标系的 x 轴）。 |
+| width | m | float64 | 载荷包围盒的绝对宽度（沿移动机器人坐标系的 y 轴）。 |
+| *height* <br>}| m | float64 | 载荷包围盒的绝对高度。<br><br>可选：仅在已知时设置值。 |
+
+
+| 对象结构 (Object structure) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- |
+| zoneRequest <br> { | JSON object | 移动机器人发送给 fleet control 的请求信息。 |
+| requestId | string | 在所有活跃请求中，每个移动机器人的唯一标识符。 |
+| requestType | string | 枚举 {'ACCESS', 'REPLANNING'}<br>指定请求相关的区域类型。可行值为 'ACCESS' 或 'REPLANNING'。 |
+| zoneId | string | 在区域集 (zone set) 内唯一的标识符，引用请求相关的区域。 |
+| zoneSetId | string | 由于 `zoneId` 仅在 `zoneSet` 内唯一，因此 `zoneSetId` 是请求的一部分。 |
+| requestStatus | string | 枚举 {'REQUESTED', 'GRANTED', 'REVOKED', 'EXPIRED'}<br>提出请求时设置为 'REQUESTED'。在收到 fleet control 的响应或更新后设置为 'GRANTED' 或 'REVOKED'。如果租约时间过期，则设置为 'EXPIRED'。 |
+| ***trajectory*** <br> } | object | 仅对于 'COORDINATED_REPLANNING' 请求可选，包含穿过该区域的规划轨迹。 |
+
+
+| 对象结构 (Object structure) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- |
+| edgeRequest <br> { | JSON object | 移动机器人发送给 fleet control 的请求信息。 |
+| requestId | string | 在所有活跃请求中，每个移动机器人的唯一标识符。 |
+| requestType | enum | 枚举 {'CORRIDOR'}<br>指定请求类型的枚举。如果请求偏离已定义工作空间内的预定义轨迹，则设置为 CORRIDOR。 |
+| edgeId | string | 全球唯一标识符，引用请求相关的边。 |
+| sequenceId | uint32 | 订单内边序号的跟踪编号。用于在订单内唯一标识所引用的边。 |
+| requestStatus <br><br> } | enum | 枚举 {'REQUESTED', 'GRANTED', 'REVOKED', 'EXPIRED'}<br>提出请求时设置为 'REQUESTED'。在收到 fleet control 的响应或更新后设置为 'GRANTED' 或 'REVOKED'。如果租约时间过期，则设置为 'EXPIRED'。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **actionState** { | | JSON object | |
+| actionId | | string | 动作的唯一标识符。 |
+| *actionType* | | string | 动作的类型。<br><br>可选：仅用于信息或可视化目的。Fleet control 已知订单中分配的动作类型。 |
+| *actionDescriptor* | | string | 用户定义的、易于理解的名称或描述。不应用于逻辑目的。 |
+| actionStatus | | string | 枚举 {'WAITING', 'INITIALIZING', 'RUNNING', 'PAUSED', 'RETRIABLE', 'FINISHED', 'FAILED'}<br><br>参见 [6.6.9 Action states](#669-action-states) 章节。 |
+| *actionResult* <br>} | | string | 结果的描述，例如 RFID 读取的结果。<br><br>错误将通过 errors 传输。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **powerSupply** { | | JSON object | |
+| stateOfCharge | % | float64 | 范围：[0 ... 100]<br><br>移动机器人的电量状态 (SoC)。对于永久供电的移动机器人，此字段应为 100。 |
+| *batteryVoltage* | V | float64 | 电池电压。 |
+| *batteryCurrent* | A | float64 | 电池电流。 |
+| *batteryHealth* | % | int8 | 范围：[0 ... 100]<br><br>描述电池健康状况 (SoH) 的状态。 |
+| charging | | boolean | “true”：正在充电。<br>“false”：移动机器人当前未在充电。仅当机器人可接受订单时，才应报告为 "false"。 |
+| *range* <br>}| m | uint32 | 范围：[0 ... uint32.max]<br><br>当前电量状态下的预计行驶距离。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **error** { | | JSON object | |
+| errorType | | string | 错误类型，可扩展枚举，包括以下预定义值：<br>枚举 {'UNSUPPORTED_PARAMETER', 'NO_ORDER_TO_CANCEL', 'VALIDATION_FAILURE', 'INVALID_ORDER', 'OUTDATED_ORDER_UPDATE', 'SAME_ORDER_UPDATE_ID', 'ORDER_UPDATE_FOLLOWING_CANCEL', 'OUTSIDE_OF_CORRIDOR', 'DUPLICATE_MAP', 'DUPLICATE_ZONE_SET', 'BLOCKED_ZONE_VIOLATION', 'RELEASE_LOST', 'ZONE_ACTION_CONFLICT', 'NODE_UNREACHABLE', 'LOCALIZATION_ERROR', 'UNKNOWN_MAP_ID', ...}。 |
+| ***errorReferences [errorReference]*** | | array | 引用数组（例如 `nodeId`、`edgeId`、`orderId`、`actionId` 等），提供与错误相关的更多信息。 |
+| *errorDescription* | | string | 详细描述错误的细节和可能原因。 |
+| ***errorDescriptionTranslations[translation]*** || array | 错误描述的翻译数组。如果集合中未包含特定语言，则应将 errorDescription 字段的值（如果存在）用作默认值。 |
+| *errorHint* | | string | 关于如何处理或解决报告错误的提示。 |
+| ***errorHintTranslations[translation]*** || array | 错误提示的翻译数组。如果集合中未包含特定语言，则应将 errorHint 字段的值（如果存在）用作默认值。 |
+| errorLevel <br> }| | string | 枚举 {'WARNING', 'URGENT', 'CRITICAL', 'FATAL'}<br><br>'WARNING': 不需要立即处理，移动机器人能够继续执行当前订单（如果有），并接受订单更新或新订单。<br> 'URGENT': 需要立即处理，移动机器人能够继续执行当前订单（如果有），并接受订单更新或新订单。<br> 'CRITICAL': 需要立即处理，移动机器人无法继续执行当前订单，但能够接受新订单。<br> 'FATAL': 需要人工干预，移动机器人无法继续执行当前订单，也无法接受订单更新或新订单。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **errorReference** { | | JSON object | |
+| referenceKey | | string | 指定所使用的引用类型（例如 `nodeId`、`edgeId`、`orderId`、`actionId` 等）。 |
+| referenceValue <br>} | | string | 属于引用键的值。例如，发生错误处的节点 ID。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **translation** { | | JSON object | |
+| translationKey | | string | 根据 ISO 639-1 指定翻译的语言。 |
+| translationValue <br>} | | string | 以翻译键指定的语言进行的翻译。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **info** { | | JSON object | |
+| infoType | | string | 信息的类型/名称。 |
+| *infoReferences [infoReference]* | | array | 引用数组。 |
+| *infoDescriptor* | | string | 用户定义的、易于理解的名称或描述。不应用于逻辑目的。 |
+| infoLevel <br>}| | string | 枚举 {'DEBUG', 'INFO'}<br><br>'DEBUG': 用于调试。<br> 'INFO': 用于可视化。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **infoReference** { | | JSON object | |
+| referenceKey | | string | 引用引用的类型（例如 headerId, orderId, actionId 等）。 |
+| referenceValue <br>} | | string | 引用属于引用键的值。 |
+
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| **safetyState** { | | JSON object | |
+| activeEmergencyStop | | string | 枚举 {'MANUAL', 'REMOTE', 'NONE'}<br><br> 定义激活了哪种类型的急停：<br>'MANUAL': 急停应在移动机器人上进行手动复位确认。<br>'REMOTE': 设施急停应进行远程复位确认。<br>'NONE': 未激活急停。 |
+| fieldViolation<br>} | | boolean | 保护场违规（例如通过激光或保险杠）。<br>"true": 场被侵入<br>"false": 场未被侵入。 |
+
+
+## 7.9 Implementation of the visualization message (visualization 消息的实现)
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| headerId | uint32 | 消息的 Header ID。<br>headerId 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
+| timestamp | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
+| version | string | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。 |
+| manufacturer | string | mobile robot 的制造商。 |
+| serialNumber | string | mobile robot 的序列号。 |
+| referenceStateHeaderId | uint32 | 该可视化消息所引用的状态消息的 Header ID。 |
+| ***plannedPath*** | JSON object | 以 NURBS 形式表示机器人当前活跃订单中的路径。 |
+| ***intermediatePath*** | JSON object | 表示移动机器人能够通过其传感器感知到的更近路标点的预计到达时间。 |
+| ***mobileRobotPosition*** | JSON object | 移动机器人在地图上的当前位置。 |
+| ***velocity*** | JSON object | 移动机器人在移动机器人坐标系下的速度。 |
+
+对象 `plannedPath`、`intermediatePath`、`mobileRobotPosition` 和 `velocity` 的定义见 [7.8 Implementation of the state message](#78-implementation-of-the-state-message) 章节。
+
+
+## 7.10 Implementation of the factsheet message (factsheet 消息的实现)
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| headerId | uint32 | 消息的 Header ID。<br>headerId 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
+| timestamp | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
+| version | string | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。 |
+| manufacturer | string | mobile robot 的制造商。 |
+| serialNumber | string | mobile robot 的序列号。 |
+| **typeSpecification** | JSON object | 这些参数通常指定移动机器人的类别 and 能力。 |
+| **physicalParameters** | JSON object | 这些参数指定移动机器人的基本物理属性。 |
+| **protocolLimits** | JSON object | MQTT 通信中标识符、数组、字符串及类似项的长度限制。 |
+| **protocolFeatures** | JSON object | VDA5050 协议支持的特性。 |
+| **mobileRobotGeometry** | JSON object | 移动机器人几何形状的详细定义。 |
+| **loadSpecification** | JSON object | 载荷能力的抽象规格。 |
+| ***mobileRobotConfiguration*** | JSON object | 移动机器人当前软硬件版本的摘要及可选的网络信息。 |
+
+#### typeSpecification
+
+此 JSON 对象描述移动机器人类型的一般属性。
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| seriesName | string | 制造商指定的自由文本泛化系列名称。 |
+| *seriesDescription* | string | 移动机器人类型系列的自由文本人类可读描述。 |
+| mobileRobotKinematics | string | 移动机器人运动学类型的简化描述。<br>可扩展枚举：{'DIFFERENTIAL', 'OMNIDIRECTIONAL', 'THREE_WHEEL', ...}<br>'DIFFERENTIAL': 差速驱动，<br>'OMNIDIRECTIONAL': 全向移动机器人，<br>'THREE_WHEEL': 三轮驱动移动机器人或具有类似运动学的移动机器人。 |
+| mobileRobotClass | string | 移动机器人类型的简化描述。<br>可扩展枚举：{FORKLIFT, CONVEYOR, TUGGER, CARRIER, ...}<br>FORKLIFT: 叉车，<br>CONVEYOR: 带有输送机的移动机器人，<br>TUGGER: 牵引车，<br>CARRIER: 带有或不带起升单元的载货车。 |
+| maximumLoadMass | float64 | [kg], 最大可载重质量。 |
+| localizationTypes | array of string | 定位类型的简化描述。<br>可扩展枚举：{'NATURAL', 'REFLECTOR', 'RFID', 'DMC', 'SPOT', 'GRID', ...}<br>NATURAL: 自然特征定位，<br>REFLECTOR: 激光反射板定位，<br>RFID: RFID 标签定位，<br>DMC: 二维码定位，<br>SPOT: 磁钉定位，<br>GRID: 磁栅定位。 |
+| navigationTypes | array of string | 移动机器人支持的路径规划类型数组，按优先级排序。<br>可扩展枚举：{'PHYSICAL_LINE_GUIDED', 'VIRTUAL_LINE_GUIDED', 'FREELY_NAVIGATING', ...}<br>'PHYSICAL_LINE_GUIDED': 无路径规划，移动机器人沿着物理安装的路径行驶，<br>'VIRTUAL_LINE_GUIDED': 移动机器人沿着固定的（虚拟）路径行驶，<br>'FREELY_NAVIGATING': 移动机器人自行规划路径。 |
+| *supportedZones* | array of string | 移动机器人支持的区域类型数组。<br>枚举 {'BLOCKED', 'LINE_GUIDED', 'RELEASE', 'COORDINATED_REPLANNING', 'SPEED_LIMIT', 'ACTION', 'PRIORITY', 'PENALTY', 'DIRECTED', 'BIDIRECTED'}。 |
+
+#### physicalParameters
+
+此 JSON 对象描述移动机器人的物理属性。
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| minimumSpeed | float64 | [m/s] 移动机器人的最小受控持续速度。 |
+| maximumSpeed | float64 | [m/s] 移动机器人的最大速度。 |
+| *minimumAngularSpeed* | float64 | [rad/s] 移动机器人的最小受控持续旋转速度。 |
+| *maximumAngularSpeed* | float64 | [rad/s] 移动机器人的最大旋转速度。 |
+| maximumAcceleration | float64 | [m/s²] 最大负载下的最大加速度。 |
+| maximumDeceleration | float64 | [m/s²] 最大负载下的最大减速度。 |
+| minimumHeight | float64 | [m] 移动机器人的最小高度。 |
+| maximumHeight | float64 | [m] 移动机器人的最大高度。 |
+| width | float64 | [m] 移动机器人的宽度。 |
+| length | float64 | [m] 移动机器人的长度。 |
+
+#### protocolLimits
+
+此 JSON 对象描述移动机器人的协议限制。
+如果某个参数未定义或设置为零，则该参数没有明确的限制。
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| **maximumStringLengths** { | JSON object | 字符串的最大长度。 |
+| &emsp;*maximumMessageLength* | uint32 | 最大 MQTT 消息长度。 |
+| &emsp;*maximumTopicSerialLength* | uint32 | MQTT 主题中序列号部分的最大长度。<br><br>受影响的参数：<br>order.serialNumber<br>instantActions.serialNumber<br>state.serialNumber<br>visualization.serialNumber<br>connection.serialNumber<br>zoneSet.serialNumber<br>response.serialNumber |
+| &emsp;*maximumTopicElementLength* | uint32 | MQTT 主题中所有其他部分的最大长度。<br><br>受影响的参数：<br>order.timestamp<br>order.version<br>order.manufacturer<br>instantActions.timestamp<br>instantActions.version<br>instantActions.manufacturer<br>state.timestamp<br>state.version<br>state.manufacturer<br>visualization.timestamp<br>visualization.version<br>visualization.manufacturer<br>connection.timestamp<br>connection.version<br>connection.manufacturer<br>zoneSet.timestamp<br>zoneSet.version<br>zoneSet.manufacturer<br>response.timestamp<br>response.version<br>response.manufacturer |
+| &emsp;*maximumIdLength* | uint32 | ID 字符串的最大长度。<br><br>受影响的参数：<br>order.orderId<br>node.nodeId<br>nodePosition.mapId<br>action.actionId<br>edge.edgeId<br>map.mapId<br>zoneSet.zoneSetId<br>zone.zoneId<br>zoneRequest.requestId<br>edgeRequest.requestId |
+| &emsp;*idNumericalOnly* | boolean | 如果为 "true"，则包含 ID 的参数应仅包含数值。 |
+| &emsp;*maximumLoadIdLength* | uint32 | loadId 字符串的最大长度。 |
+| } | | |
+| **maximumArrayLengths** { | JSON object | 数组的最大长度。 |
+| &emsp;*order.nodes* | uint32 | 移动机器人每个订单可处理的最大节点数。 |
+| &emsp;*order.edges* | uint32 | 移动机器人每个订单可处理的最大边数。 |
+| &emsp;*node.actions* | uint32 | 移动机器人每个节点可处理的最大动作数。 |
+| &emsp;*edge.actions* | uint32 | 移动机器人每条边可处理的最大动作数。 |
+| &emsp;*actions.actionsParameters* | uint32 | 移动机器人每个动作可处理的最大参数个数。 |
+| &emsp;*instantActions* | uint32 | 移动机器人每条消息可处理的最大即时动作数。 |
+| &emsp;*trajectory.knotVector* | uint32 | 移动机器人每个轨迹可处理的最大节点数 (knot)。 |
+| &emsp;*trajectory.controlPoints* | uint32 | 移动机器人每个轨迹可处理的最大控制点数。 |
+| &emsp;*zoneSet.zones* | uint32 | 移动机器人每个 `zoneSet` 可处理的最大区域数。 |
+| &emsp;*state.nodeStates* | uint32 | 移动机器人发送的最大 nodeState 数量，即移动机器人 Base 中的最大节点数。 |
+| &emsp;*state.edgeStates* | uint32 | 移动机器人发送的最大 edgeState 数量，即移动机器人 Base 中的最大边数。 |
+| &emsp;*state.loads* | uint32 | 移动机器人发送的最大载荷对象数。 |
+| &emsp;*state.actionStates* | uint32 | 移动机器人发送的 actionStates 中的最大对象数。 |
+| &emsp;*state.instantActionStates* | uint32 | 移动机器人发送的 instantActionStates 中的最大对象数。 |
+| &emsp;*state.zoneActionStates* | uint32 | 移动机器人发送的 zoneActionStates 中的最大对象数。 |
+| &emsp;*state.errors* | uint32 | 移动机器人在一条状态消息中发送的最大错误数。 |
+| &emsp;*state.information* | uint32 | 移动机器人在一条状态消息中发送的最大信息数。 |
+| &emsp;*error.errorReferences* | uint32 | 移动机器人为每个错误发送的最大错误引用数。 |
+| &emsp;*information.infoReferences* | uint32 | 移动机器人为每条信息发送的最大信息引用数。 |
+| } | | |
+| **timing** { | JSON object | 时间信息。 |
+| &emsp;minimumOrderInterval | float32 | [s], 向移动机器人发送订单消息的最小间隔。 |
+| &emsp;minimumStateInterval | float32 | [s], 发送状态消息的最小间隔。 |
+| &emsp;*defaultStateInterval* | float32 | [s], 发送状态消息的默认间隔，*如果未定义，则使用主文档中的默认值*。 |
+| &emsp;*visualizationInterval* | float32 | [s], 在可视化主题上发送消息的默认间隔。 |
+| } | | |
+
+#### protocolFeatures
+
+此 JSON 对象定义了移动机器人支持的订单处理流程、动作和参数。
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| **optionalParameters** [**optionalParameters**] | array | 支持和/或要求的可选参数数组。<br>此处未列出的可选参数被假定为移动机器人不支持。 |
+| { | | |
+| &emsp;parameter | string | 可选参数的全名，例如 "*order.nodes.nodePosition.allowedDeviationTheta"*。 |
+| &emsp;support | enum | 可选参数的支持类型，可能的值如下：<br>'SUPPORTED': 可选参数按规格支持。<br>'REQUIRED': 可选参数是移动机器人正常运行所必需的。 |
+| &emsp;*description*| string | 自由格式文本：可选参数的描述，例如：<ul><li>为什么方向可选参数对该移动机器人类型是必要的，以及它可以包含哪些值。</li><li>参数 nodeMarker 应仅包含无符号整数。</li><li>NURBS 支持仅限于直线和圆弧段。</li> |
+| } | | |
+| **mobileRobotActions** [**mobileRobotAction**] | array | 该移动机器人支持的所有带参数的动作数组。这包括 VDA5050 中指定的标准动作和制造商特定的动作。 |
+| { | | |
+| &emsp;actionType | string | 对应于 action.actionType 的唯一动作类型。 |
+| &emsp;*actionDescription* | string | 自由格式文本：动作的描述。 |
+| &emsp;actionScopes | array of enum | 使用此动作类型允许的范围数组。<br><br>'INSTANT': 可作为 instantAction 使用。<br>'NODE': 可在节点上使用。<br>'EDGE': 可在边上使用。<br>'ZONE': 可作为区域动作使用。<br><br>例如：['INSTANT', 'NODE'] |
+| &emsp;***actionParameters** [**actionParameter**]* | array | 动作具有的参数数组。<br>如果未定义，则该动作没有参数。<br>此处定义的 JSON 对象与 [7.3 Implementation of the order message](#73-implementation-of-the-order-message) 章节中节点和边内使用的 JSON 对象不同。 |
+| &emsp;*{* | | |
+| &emsp;&emsp;key | string | 参数的键字符串。 |
+| &emsp;&emsp;valueDataType | enum | 值的数值类型，可能的数据类型有：'BOOL', 'NUMBER', 'INTEGER', 'STRING', 'OBJECT', 'ARRAY'。 |
+| &emsp;&emsp;*description* | string | 自由格式文本：参数的描述。 |
+| &emsp;&emsp;*isOptional* | boolean | "true": 可选参数。 |
+| &emsp;*}* | | |
+| *actionResult* | string | 自由格式文本：结果的描述。 |
+| *blockingTypes* | array of enum | 定义动作可能的阻塞类型数组。<br>枚举 {'NONE', 'SOFT', 'SINGLE', 'HARD'} |
+| pauseAllowed | boolean | "true": 动作可以通过 startPause 暂停，"false": 动作不可暂停。 |
+| cancelAllowed | boolean | "true": 动作可以通过 cancelOrder 取消，"false": 动作不可取消。 |
+| *}* | | |
+
+#### mobileRobotGeometry
+
+此 JSON 对象定义移动机器人的几何属性，例如轮廓和车轮位置。
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| ***wheelDefinitions** [**wheelDefinition**]* | array | 车轮数组，包含车轮布局和几何形状。 |
+| { | | |
+| &emsp;type | string | 车轮类型<br>可扩展枚举 {'DRIVE', 'CASTER', 'FIXED', 'MECANUM', ...}。 |
+| &emsp;isActiveDriven | boolean | "true": 车轮是主动驱动的。 |
+| &emsp;isActiveSteered | boolean | "true": 车轮是主动转向的。 |
+| &emsp;**position** { | JSON object | |
+| &emsp;&emsp; x | float64 | [m], 移动机器人坐标系中的 x 位置。 |
+| &emsp;&emsp; y | float64 | [m], 移动机器人坐标系中的 y 位置。 |
+| &emsp;&emsp; *theta* | float64 | [rad], 移动机器人坐标系中车轮的朝向。对于固定轮是必要的。 |
+| &emsp;} | | |
+| &emsp;diameter | float64 | [m], 车轮的公称直径。 |
+| &emsp;width | float64 | [m], 车轮的公称宽度。 |
+| &emsp;*centerDisplacement* | float64 | [m], 车轮中心相对于旋转点的公称位移（对于脚轮是必要的）。<br>如果未定义该参数，则假定为 0。 |
+| &emsp;*constraints* | string | 自由格式文本：可由制造商用于定义约束。 |
+| } | | |
+| ***envelopes2d** [**envelope2d**]* | array | 2D 移动机器人包络线曲线数组，例如空载和负载状态下的机械包络线，不同速度情况下的安全场。 |
+| { | | |
+| &emsp;envelope2dId | string | 包络线曲线集的标识符。 |
+| &emsp;**vertices[vertex]** | array | 多边形形式的包络线。应假定其为闭合的。应仅使用简单多边形。 |
+| &emsp;{ | | |
+| &emsp;&emsp; x | float64 | [m], 多边形点的 X 位置。 |
+| &emsp;&emsp; y | float64 | [m], 多边形点的 Y 位置。 |
+| &emsp;} | | |
+| &emsp;*description* | string | 自由格式文本：包络线曲线集的描述。 |
+| *}* | | |
+| ***envelopes3d [envelope3d]*** | array | 3D 移动机器人包络线曲线数组。 |
+| *{* | | |
+| &emsp;envelope3dId | string | 包络线曲线集的标识符。 |
+| &emsp;format | string | 数据格式，例如 DXF。 |
+| &emsp;***data*** | JSON object | 3D 包络线曲线数据，格式在 'format' 中指定。 |
+| &emsp;*url* | string | 下载 3D 包络线曲线数据的协议和 URL 定义，例如 <ftp://xxx.yyy.com/ac4dgvhoif5tghji>。 |
+| &emsp;*description* | string | 自由格式文本：包络线曲线集的描述。 |
+| *}* | | |
+
+#### loadSpecification
+
+此 JSON 对象指定移动机器人的载荷处理和支持的载荷类型。
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| *loadPositions* | array of string | 载荷位置/载荷处理设备数组。<br>此数组包含参数 "state.loads[].loadPosition" 以及 pick 和 drop 动作的 "lhd" 动作参数的有效值。<br>*如果此数组不存在或为空，则移动机器人没有载荷处理设备。* |
+| ***loadSets [loadSet]*** | array | 移动机器人可以处理的载荷集数组。 |
+| { | | |
+| &emsp; setName | string | 载荷集的唯一名称，例如 DEFAULT, SET1 等。 |
+| &emsp; loadType | string | 载荷类型，例如 EPAL, XLT1200 等。 |
+| &emsp; *loadPositions* | array of string | 该载荷集适用的载荷位置（载荷处理设备）数组。<br>*如果此参数不存在或为空，则该载荷集适用于移动机器人上的所有载荷处理设备。* |
+| &emsp; ***boundingBoxReference*** | JSON object | 状态消息中载荷参数 loads[] 中定义的包围盒参考点。 |
+| &emsp; ***loadDimensions*** | JSON object | 状态消息中载荷参数 loads[] 中定义的载荷尺寸。 |
+| &emsp; *maximumWeight* | float64 | [kg], 载荷类型的最大重量。 |
+| &emsp; *minimumLoadhandlingHeight* | float64 | [m], 处理该载荷类型和重量时允许的最小高度，参考 boundingBoxReference。 |
+| &emsp; *maximumLoadhandlingHeight* | float64 | [m], 处理该载荷类型和重量时允许的最大高度，参考 boundingBoxReference。 |
+| &emsp; *minimumLoadhandlingDepth* | float64 | [m], 该载荷类型和重量允许的最小深度，参考 boundingBoxReference。 |
+| &emsp; *maximumLoadhandlingDepth* | float64 | [m], 该载荷类型和重量允许的最大深度，参考 boundingBoxReference。 |
+| &emsp; *minimumLoadhandlingTilt* | float64 | [rad], 该载荷类型和重量允许的最小倾角。 |
+| &emsp; *maximumLoadhandlingTilt* | float64 | [rad], 该载荷类型和重量允许的最大倾角。 |
+| &emsp; *maximumSpeed* | float64 | [m/s], 该载荷类型和重量允许的最大速度。 |
+| &emsp; *maximumAcceleration* | float64 | [m/s²], 该载荷类型和重量允许的最大加速度。 |
+| &emsp; *maximumDeceleration* | float64 | [m/s²], 该载荷类型和重量允许的最大减速度。 |
+| &emsp; *pickTime* | float64 | [s], 取货的近似时间。 |
+| &emsp; *dropTime* | float64 | [s], 卸货的近似时间。 |
+| &emsp; *description* | string | 自由格式文本：载荷处理集的描述。 |
+| } | | |
+
+#### mobileRobotConfiguration
+
+此 JSON 对象详细说明了移动机器人上运行的软件和硬件版本，以及网络信息的简要摘要。
+
+| **字段 (Field)** | **数据类型 (Data type)** | **描述 (Description)** |
+| :--- | :--- | :--- |
+| ***versions[versionInfo]*** | array | 包含软件和硬件信息的键值对对象数组。 |
+| { | | |
+| &emsp; key | string | 所用软件/硬件版本的键（例如 softwareVersion）。 |
+| &emsp; value | string | 对应于键的版本（例如 v1.12.4-beta）。 |
+| } | | |
+| ***network*** { | JSON object | 移动机器人网络连接的信息。列出的信息在移动机器人运行期间不应更新。 |
+| &emsp;&emsp; *dnsServers* | array of string | 移动机器人使用的域名服务器 (DNS) 数组。 |
+| &emsp;&emsp; *ntpServers* | array of string | 移动机器人使用的网络时间协议 (NTP) 服务器数组。 |
+| &emsp;&emsp; *localIpAddress* | string | 用于与 MQTT broker 通信的预先分配的 IP 地址。注意，该 IP 地址在运行期间不应修改/更改。 |
+| &emsp;&emsp; *netmask* | string | 与本地 IP 地址相对应的网络配置中使用的子网掩码。 |
+| &emsp;&emsp; *defaultGateway* | string | 移动机器人使用的默认网关，对应于本地 IP 地址。 |
+| &emsp; } | | |
+| ***batteryCharging*** { | JSON object | 电池充电参数信息。 |
+| *criticalLowChargingLevel* | float64 | 指定临界低电量充电水平（百分比），在该水平或以下时，fleet control 应仅发送命令移动机器人前往充电站的订单。 |
+| *maximumDesiredChargingLevel* | float64 | 指定最大期望充电水平（百分比）。 |
+| *minimumDesiredChargingLevel* | float64 | 指定最小期望充电水平（百分比）。 |
+| *minimumChargingTime* | uint32 | 指定期望的最短充电时间（秒）。 |
+| &emsp; } | | |
+
+# Bibliography (参考文献)
+
+| 文档 (Document) | 版本 (Version) | 描述 (Description) |
+| :--- | :--- | :--- |
+| ISO 3691-4 | 2023年12月 | 工业车辆 安全要求和验证-第4部分：无人驾驶车辆及其系统 |
+| ISO 9787 | 2013年5月 | 机器人和机器人设备：坐标系和运动命名法 |
+| ISO 639 | 2023年11月 | 世界语言及其语系表示的代码 |
+| ISO 8601 | 2019年2月 | 日期和时间：信息交换的表示形式 |
+| LIF – Layout Interchange Format | 2024年3月 | 定义轨道布局格式，用于无人驾驶运输移动机器人的集成商与（第三方）车队控制系统之间的交换。 |
+
+
+
+
+
+
+
+
 
 
 
