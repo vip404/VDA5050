@@ -1034,27 +1034,432 @@ mobile robot 状态消息应当在相关事件发生时发布，或者至少每 
 - `edgeRequests` 或 `zoneRequests` 数组发生变化
 - `powerSupply.charging` 字段发生变化
 - `nodeStates` 或 `edgeStates` 数组发生变化
-shutdown | - | OFFLINE 连接状态的激活正在准备中。如果 mobile robot 支持即时转换，则可以省略此状态。| - | mobile robot 未在移动。mobile robot 与 broker 之间的连接被协调终止。<br>mobile robot 报告 connection state 为 "OFFLINE"。| shutdown 由于某些原因无法执行（例如，mobile robot 未处于 idle 状态，被硬件开关覆盖）。| -
-startCharging | - | 充电过程的激活正在进行中（与充电器的通信正在运行）。<br>如果 mobile robot 支持即时转换，则可以省略此状态。 | - | 充电过程已开始。<br>mobile robot 报告 powerSupply.charging: "true"。 | 由于某种原因无法开始充电过程（例如，未对准充电器）。充电问题应当对应一个错误。 | 充电过程无法启动。mobile robot 正在等待 fleet control 或操作员的干预。
-stopCharging | - | 充电过程的停用正在进行中（与充电器的通信正在运行）。<br>如果 mobile robot 支持即时转换，则可以省略此状态。 | - | 充电过程已停止。<br>mobile robot 报告 powerSupply.charging: "false" | 由于某种原因无法停止充电过程（例如，未对准充电器）。<br>充电问题应当对应一个错误。 | -
-initializePosition | - | 正在进行新姿态的初始化（置信度检查等）。<br>如果 mobile robot 支持即时转换，则可以省略此状态。 | - | 姿态已被重置。<br>mobile robot 报告 <br>mobileRobotPosition.x = x, <br>mobileRobotPosition.y = y, <br>mobileRobotPosition.theta = theta <br>mobileRobotPosition.mapId = mapId <br>mobileRobotPosition.lastNodeId = lastNodeId | 姿态无效或无法被重置。<br>一般的定位问题应当对应一个错误。 | -
-downloadMap | 正在初始化到地图服务器的连接。 | mobile robot 正在下载该 map。 | - | 下载已完成。mobile robot 通过设置 mapId/mapVersion 及将相应的 mapStatus 设为 'DISABLED' 来更新其状态。 | 下载失败，在 mobile robot 状态中被更新（例如连接丢失、地图服务器不可达、地图服务器上不存在该 mapId/mapVersion）。 | 下载失败或被中断。mobile robot 正在等待 fleet control 的干预。
-enableMap | - | mobile robot 启用了请求的 mapId 和 mapVersion 的地图，并禁用了具有相同 mapId 的任何其他地图。 | - | 地图已启用。mobile robot 更新请求的地图的相应 mapStatus 为 'ENABLED'，将具有相同 mapId 的其他版本设为 'DISABLED'。 | 请求的 mapId/mapVersion 组合不存在。| -
-deleteMap | - | mobile robot 从其内部内存中删除了所请求 mapId 和 mapVersion 的地图。 | - | 地图已被删除。mobile robot 从其 state 中移除该 mapId/mapVersion。 | 无法删除地图，例如因为该地图当前正在使用，或者请求的 mapId/mapVersion 组合之前已被删除。 | -
-downloadZoneSet | 正在初始化到 zone set (区域集) 服务器的连接。 | mobile robot 正在下载该 zone set。 | - | 下载已完成。mobile robot 通过在其 state 中设置具有 zoneSetStatus 'DISABLED' 的相应 zoneSet 对象来更新状态。 | 下载失败，在 mobile robot 状态中被更新（例如连接丢失、服务器不可达、zone set 不存在、mobile robot 上已有具有相同 zoneSetId 的 zone set）。 | 下载失败或被中断。mobile robot 正在等待 fleet control 的干预。
-enableZoneSet | - | mobile robot 启用了具有请求 zoneSetId 的 zone set，并禁用了同属该 mapId 的任何其他 zone set。 | - | 该 zone set 已启用。mobile robot 将请求 zoneSet 的相应 zoneSetStatus 更新为 'ENABLED'，并将同一 mapId 下的其他 zone sets 设为 'DISABLED'。 | 请求的 zone set 不存在。| -
-deleteZoneSet | - | mobile robot 从其内部内存中删除所请求 zoneSetId 的 zone set。 | - | 该 zone set 已被删除。mobile robot 从其 state 中移除该 zoneSet 对象。 | 无法删除 zone set，例如因为该 zone set 当前正在被使用，或者请求的 zone set 之前已被删除过。 | -
-clearInstantActions | - | | - | instant actions 数组已被清理，所有的 FINISHED 或 FAILED 的 instantAction 都已移除。 | - | - 
-clearZoneActions | - | | - | zone actions 数组已被清理，所有的 FINISHED 或 FAILED 的 zone action 都已移除。 | - | - 
-stateRequest | - | - | - | 状态已经通讯发出 | - | - 
-logReport | - | 报告正在生成中。<br>如果 mobile robot 支持即时生成，则可以省略此状态。 | - | 报告已被存储。<br>日志的名称作为该 action state 的一部分被报告。 | 报告无法被存储（例如由于没有空间）。| - 
-pick | 初始化 pick 过程，例如悬空的提升操作。 | pick 过程正在运行（mobile robot 正在进入工位，载荷搬运设备处于繁忙状态，与工位的通信正在运行等）。 | pick 过程正在被暂停，例如因为违反了安全区域。<br>在解除违规后，pick 过程将继续。 | Pick 已经完成。<br>载荷已经进入 mobile robot 并且 mobile robot 报告了新的 load 状态。 | Pick 失败，例如工位意外变空。<br>失败的 pick 操作应当对应一个错误。 | Pick 失败，但是可以重试 (retriable)。mobile robot 正在等待 fleet control 或操作员的干预。
-drop | 初始化 drop 过程，例如悬空的提升操作。 | drop 过程正在运行（mobile robot 正在进入工位，载荷搬运设备处于繁忙状态，与工位的通信正在运行等）。 | drop 过程正在被暂停，例如因为违反了安全区域。<br>在解除违规后，drop 过程将继续。 | Drop 已经完成。<br>载荷已经离开 mobile robot 并且 mobile robot 报告了新的 load 状态。 | Drop 失败，例如工位意外被占用。<br>失败的 drop 操作应当对应一个错误。 | Drop 失败，但是可以重试。mobile robot 正在等待 fleet control 或操作员的干预。
-detectObject | - | 对象检测正在运行中。 | - | 对象已经被检测到。 | 无法检测到该对象。 | 对象检测失败，但是可以重试。mobile robot 正在等待 fleet control 或操作员的干预。
-finePositioning | - | mobile robot 正在将自身精确定位到一个目标上。 | 精确定位过程正在被暂停，例如因为违反了安全区域。<br>例如在违规解决之后，精确定位继续。 | 已到达相对于工位的目标位置。 | 无法到达相对于工位的目标位置。 | 精确定位失败但可重试。mobile robot 正在等待 fleet control 或操作员的干预。
-waitForTrigger | - | mobile robot 正在等待触发器 (trigger) | - | 触发器已经被触发。 | 如果 order 被取消，waitForTrigger 将失败。 | -
-cancelOrder | - | mobile robot 正在停止或正在行驶直至到达下一个 node。 | - | mobile robot 没有在移动。mobile robot 已经取消了 order 的执行，并且处于 idle 状态。 | <br>mobile robot 没有活跃的 order。<br>先前的 order 已经被取消。<br>传递的 orderId 与当前活跃的 orderId 不匹配。 | -
-factsheetRequest | - | - | - | factsheet 已经被通讯发出 | - | -
-updateCertificate | - | mobile robot 正在下载并安装证书 | - | 证书已经被下载、安装并处于激活状态。 | 下载或安装失败。 | -
+- `actionStates`、`instantActionStates` 或 `zoneActionStates` 数组发生变化
+- `zoneSets` 数组发生变化
+- `maps` 数组发生变化
 
->表 5 - 预定义 action 在各 action state 下的预期行为
+*备注：对于上述提到的数组，数组中单个项目的更改以及条目的添加或移除均应当触发状态消息的传输。*
+
+应当努力限制通信量。
+如果两个事件相互关联（例如，接收新订单通常会强制更新 `nodeStates` 和 `edgeStates`；经过节点时也是如此），则触发一次状态更新而非多次是明智的。两次连续状态消息之间的最小时间由 factsheet 定义（[7.10 factsheet 消息的实现](#710-implementation-of-the-factsheet-message) `protocolLimits.timing.minimumStateInterval`）。
+
+### 6.6.1 Concept and logic (概念与逻辑)
+
+订单进度通过 `nodeStates` 和 `edgeStates` 进行跟踪。
+此外，如果 mobile robot 能够确定其当前位置，则应当通过 `mobileRobotPosition` 字段发布该位置。
+
+`nodeStates` 和 `edgeStates` 包含了 mobile robot 即将遍历的所有节点和边。
+
+![Figure 18 Order information provided by the state topic. Only the ID of the last node and the remaining nodes and edges are transmitted](./assets/order_information_state_topic.png)
+>图 18 - state 主题提供的订单信息。仅传输最后一个节点的 ID 以及剩余的节点和边。
+
+### 6.6.2 Traversal of nodes and edges (节点和边的遍历)
+
+mobile robot 自行决定何时一个节点应当计为已遍历。
+遍历的一个要求是 mobile robot 的控制点应当处于节点的 `allowedDeviationXY` 范围内，且其方向处于 `allowedDeviationTheta` 范围内。
+`allowedDeviationXY` 定义了有轨导引 (line-guided) 的 mobile robot 在何处可以偏离其预定义轨迹，以便沿着更平滑的路径切弯，而不是到达节点的精确位置。在离开 `allowedDeviationXY` 时，mobile robot 应当回到后续边的预定义轨迹上。
+如果设置了后续边的边属性 `corridor`（走廊），则应当额外满足这些边界要求。
+
+如果 mobile robot 距离订单的第一个节点太远，fleet control 可以为该节点添加一个扩展的 `allowedDeviationXY`，以包含 mobile robot 的当前位置。
+
+mobile robot 应当通过从 `nodeStates` 数组中移除该节点的 `nodeState`，并将 `lastNodeId` 和 `lastNodeSequenceId` 设置为已遍历节点的值，来报告节点的遍历。
+
+一旦 mobile robot 报告节点已遍历，它应当触发与该节点关联的 action（如果有）。
+遍历一个节点必然意味着离开通向该节点的边。
+随后，该边也应当从 `edgeStates` 中移除，且在该边上处于活跃状态的 action 应当完成。
+
+节点的遍历也标志着 mobile robot 进入下一条边（如果有）的时刻。
+应当触发该边的 action（如果有）。
+此规则的一个例外是：如果 mobile robot 应当在节点上停止（由于 soft 或 hard 阻塞 action），则 mobile robot 只有在再次开始行驶时才会进入下一条边。
+
+当存在活跃订单时，只有当 mobile robot 遍历作为该订单一部分的已释放节点时，`lastNodeId` 和 `lastNodeSequenceId` 字段才应当更新。例如，如果物理线导式 mobile robot 检测到一个不属于活跃订单 `nodes` 的物理标记/标签，该检测不应导致 `lastNodeId` 或 `lastNodeSequenceId` 的更改。
+
+![Figure 19 Depiction of nodeStates, edgeStates, and actionStates during order handling](./assets/states_during_order_handling.png)
+>图 19 - 订单处理过程中的 `nodeStates`、`edgeStates` 和 `actionStates` 描绘
+
+#### 6.6.2.1 Definition of allowedDeviationXY as an ellipse (allowedDeviationXY 定义为椭圆)
+
+`allowedDeviationXY` 被定义为节点位置周围的一个椭圆，以允许更灵活地靠近节点。
+
+![Figure 20 allowedDeviationXY ellipse](./assets/ellipse.png)
+>图 20 - allowedDeviation 椭圆
+
+
+### 6.6.3 Base request (Base 请求)
+
+如果 mobile robot 检测到其 base 即将运行结束，它可以将 `newBaseRequest` 标志设置为 "true"，以尝试防止不必要的制动。
+
+### 6.6.4 Information (信息)
+
+mobile robot 可以通过 `information` 数组向 fleet control 提交任意附加信息。
+由 mobile robot 自行决定通过信息消息报告信息的时间长短。
+
+fleet control 不得将该信息用于逻辑判断；它们应当仅用于可视化和调试目的。
+
+### 6.6.5 Errors (错误)
+
+mobile robot 通过 `errors` 数组报告任何问题。
+
+#### 6.6.5.1 Error levels (错误级别)
+
+问题可以有四个级别：'WARNING'、'URGENT'、'CRITICAL' 和 'FATAL'。
+
+- 'WARNING'（警告）级别的问题不需要立即处理。mobile robot 可以继续其当前订单并能够接受新订单。错误可能是自愈的，例如激光雷达传感器脏污。
+- 'URGENT'（紧急）级别的问题（例如电池电量低）需要立即处理。mobile robot 可以继续其当前订单并能够接受新订单。
+- 'CRITICAL'（严重）级别的问题需要立即处理，例如尝试取走一个并不存在的物体。mobile robot 应当停止行驶，因为它无法继续执行当前订单，但能够接受新订单。
+- 'FATAL'（致命）级别的问题需要人工干预，例如丢失定位。mobile robot 应当停止行驶，因为它既不能继续执行当前活跃订单，也不能接受任何新订单。
+
+mobile robot 可以通过 `errorReferences` 数组添加有助于查找错误原因的引用。
+`errorDescription` 和 `errorHint` 字段可以提供易于理解的文本，解释错误或建议可能的解决方案。
+
+无论问题的级别如何，mobile robot 都绝不应因此清除其订单。
+
+
+#### 6.6.5.2 Error references (错误引用)
+
+如果由于错误的订单或执行失败而发生错误，mobile robot 可以在 `errorReferences` 字段中返回有意义的错误引用，以支持查找错误原因。
+这可以包括以下信息：
+
+- `headerId`
+- 主题（`order` 或 `instantAction`）
+- `orderId` 和 `orderUpdateId`（如果错误是由订单更新引起的）
+- `actionId`（如果错误是由某个 action 引起的）
+- 参数列表（如果错误是由错误的 action 参数引起的）
+
+
+#### 6.6.5.3 Error translations (错误翻译)
+
+对于 `errorDescription` 和 `errorHint`，mobile robot 可以通过使用 `errorDescriptionTranslations` 和 `errorHintTranslations` 数组提供翻译。
+每项翻译由一个 ISO 639-1 语言代码和对应的翻译文本组成。
+
+#### 6.6.5.4 Predefined error types (预定义错误类型)
+
+mobile robot 应当使用预定义的错误类型来报告特定问题。下表列出了预定义的错误类型及其描述。
+
+| 错误类型 (Error Type) | 错误级别 (Error level) | 描述 (Description) | 引用 (Reference) | 报告时长 (Report duration) |
+| :--- | :--- | :--- | :--- | :--- |
+| 'UNSUPPORTED_PARAMETER' | 'CRITICAL' | 收到带有不支持的可选参数的消息。 | 参数名称 | 直到接受新订单。 |
+| 'NO_ORDER_TO_CANCEL' | 'WARNING' | mobile robot 收到 `cancelOrder` action，但没有可取消的活跃订单。 | `cancelOrder` 的 `actionId` | 直到接受新订单。 |
+| 'VALIDATION_FAILURE' | 'WARNING' | 收到格式错误的订单。 | 如果可能，提供被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
+| 'INVALID_ORDER_ACTION' | 'WARNING' | 收到包含不支持 action 的订单。 | 被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
+| 'INVALID_INSTANT_ACTION' | 'WARNING' | 收到不支持的 instant action。 | `instantAction` 的 `actionId` | 直到接受新的 instant action。 |
+| 'OUTDATED_ORDER_UPDATE' | 'WARNING' | 收到 `orderId` 正确但 `orderUpdateId` 已过期的订单。 | 被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
+| 'SAME_ORDER_UPDATE_ID' | 'WARNING' | 收到重复的订单消息（相同的 `orderId` 和 `orderUpdateId`）。 | 被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
+| 'ORDER_UPDATE_FOLLOWING_CANCEL' | 'WARNING' | 收到针对已取消订单的订单更新。 | 被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
+| 'OUTSIDE_OF_CORRIDOR' | 'CRITICAL' | 偏离了为边定义的 corridor (走廊)。 | `edgeId` | 直到 mobile robot 不再违反走廊边界。 |
+| 'INSUFFICIENT_MEMORY' | 'URGENT' | mobile robot 没有足够的内存来处理接收到的订单。 | 如果可能，提供被拒绝消息的 `orderId` 和 `orderUpdateId`。 | 直到接受新订单。 |
+| 'DUPLICATE_MAP' | 'WARNING' | 收到已存在的 `mapId` 和 `mapVersion` 的地图。 | 重复地图的 `mapId` 和 `mapVersion` | 直到接受新的地图相关 instantAction。 |
+| 'BLOCKED_ZONE_VIOLATION' | 'CRITICAL' | 进入 'BLOCKED' 区域。 | `zoneId` | 直到 mobile robot 不再违反阻塞区域规则。 |
+| 'DUPLICATE_ZONE_SET' | 'WARNING' | 收到已存在的 `zoneSetId` 的区域集。 | `zoneSetId` 或 `instantAction` 的 `actionId` | 足够让 fleet control 注意到区域更新失败的时间。 |
+| 'RELEASE_LOST' | 'CRITICAL' | 丢失 'RELEASE' 区域的释放权限。 | `zoneId` | 直到 mobile robot 不再处于 'RELEASE' 区域或再次获得释放权限。 |
+| 'ZONE_ACTION_CONFLICT' | 'CRITICAL' | 区域行为与区域 action 之间存在冲突。 | 'ACTION' 区域的 `zoneId` | 直到 mobile robot 不再违反区域行为。 |
+| 'NODE_UNREACHABLE' | 'CRITICAL' | mobile robot 无法到达订单中的节点。 | `nodeId` | 直到接受新订单。 |
+| 'LOCALIZATION_ERROR' | 'FATAL' | mobile robot 未定位。 | | 直到重新获得定位。 |
+| 'NO_ROUTE_TO_TARGET' | 'WARNING' | 收到包含至少一个无法到达节点的订单。 | `orderId` | 直到接受新订单。 |
+| 'OTHER_ORDER_ACTIVE' | 'WARNING' | 在另一个订单仍处于活跃状态时收到新订单。 | `orderId` | 直到接受新订单。 |
+| 'START_NODE_OUT_OF_RANGE' | 'WARNING' | 收到第一个节点无法到达的订单。 | `orderId` | 直到接受新订单。 |
+| 'MOBILE_ROBOT_NOT_AVAILABLE' | 'WARNING' | 在非 'AUTOMATIC'、'SEMIAUTOMATIC' 或 'INTERVENED' 运行模式下收到订单。 | `orderId` | 直到运行模式允许新订单。 |
+| 'UNKNOWN_MAP_ID' | 'WARNING' | 收到包含引用未知 `mapId` 节点的订单。 | `orderId` | 直到接受新订单。 |
+
+>表 9 - 预定义错误类型
+
+### 6.6.6 Operating Mode (运行模式)
+
+为了正常的订单执行，fleet control 应当完全控制 mobile robot。然而在某些情况下这是不可能的，例如需要对 mobile robot 进行手动交互。mobile robot 应当使用 `operatingMode` 字段报告此情况。
+
+下表描述了 `operatingMode` 字段的值、其含义以及对 mobile robot 与 fleet control 交互的影响：
+
+| 运行模式 (Operating Mode) | 描述 (Description) |
+| :--- | :--- |
+| AUTOMATIC | Fleet control 完全控制 mobile robot。<br>mobile robot 根据来自 fleet control 的订单移动并执行 action。 |
+| SEMIAUTOMATIC | Fleet control 控制 mobile robot。<br>mobile robot 根据来自 fleet control 的订单移动并执行 action。<br>行驶速度由 HMI 控制。<br>转向处于自动控制下。 |
+| INTERVENED | Fleet control 未控制 mobile robot。mobile robot 正确报告其状态。<br>HMI 可用于控制 mobile robot 的转向、速度和搬运设备。<br>允许 fleet control 向 mobile robot 发送订单或订单更新，以便在切换回 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 运行模式后执行。fleet control 不得发送除 `cancelOrder` 以外的任何 instant action。<br>mobile robot 不得清除订单，但应当从状态中移除所有区域请求 (zone requests)，即使 mobile robot 已经处于 'RELEASE' 区域内也是如此。（*备注：如有必要，fleet control 可以继续跟踪 mobile robot 的位置，并决定是否可以为其他 mobile robot 释放空间。*）mobile robot 不得请求进入 'RELEASE' 区域的权限，也不得在 'COORDINATED_REPLANNING' 区域内请求重新规划。<br>如果进入 'INTERVENED' 运行模式对正在运行的 action 有任何影响，mobile robot 应当在状态消息中相应地反映出来。<br>如果 mobile robot 离开此运行模式且未直接切换到 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 模式，它应当根据新的运行模式行动。如果 mobile robot 离开此运行模式并直接切换到 'AUTOMATIC' 或 'SEMI-AUTOMATIC' 模式，mobile robot 应当继续执行任何当前订单。如果 mobile robot 在 'INTERVENED' 运行模式期间检测到无法继续当前订单，它应当切换到 'MANUAL' 运行模式并据此行动。 |
+| MANUAL | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>HMI 可用于控制 mobile robot 的转向、速度和搬运设备。<br>mobile robot 的位置被发送给 fleet control。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>在此模式下，如果 mobile robot 检测到其被移动到了一个无法将 `lastNodeId` 当前值用作新订单起始节点的位置，它应当将 `lastNodeId` 设置为空字符串 ("")。 |
+| STARTUP | Fleet control 未控制 mobile robot。mobile robot 正在启动且未准备好接收订单。在启动完成前，状态消息参数可能不完整或无效。 |
+| SERVICE | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>mobile robot 应当将 `lastNodeId` 设置为空字符串 ("")。<br>授权人员可以重新配置 mobile robot。 |
+| TEACH_IN | Fleet control 未控制 mobile robot。<br>fleet control 不得向 mobile robot 发送订单或 action。<br>当 mobile robot 进入此模式时，它立即清除任何当前订单。<br>mobile robot 应当将 `lastNodeId` 设置为空字符串 ("")。<br>mobile robot 正在接受示教，例如由操作员进行地图构建。 |
+
+>表 10 - mobile robot 的运行模式
+
+| 运行模式 (Operating Mode) | Fleet Control 控制中 | 有效的状态消息内容 | 进入时清除订单 | 将 `lastNodeId` 设为空 | 进入时清除区域请求 | 允许发送 instant actions | 允许发送订单 (orders) |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| AUTOMATIC | 是 | 是 | 否 | 否 | 否 | 是 | 是 |
+| SEMIAUTOMATIC | 是 | 是 | 否 | 否 | 否 | 是 | 是 |
+| INTERVENED | 否 | 是 | 否 | 否 | 是 | 仅允许 `cancelOrder` | 是 |
+| MANUAL | 否 | 是 | 是 | 是（如果无法继续订单）| 是 | 否 | 否 |
+| STARTUP | 否 | 否 | 是 | 是 | 是 | 否 | 否 |
+| SERVICE | 否 | 是 | 是 | 是 | 是 | 否 | 否 |
+| TEACH_IN | 否 | 是 | 是 | 是 | 是 | 否 | 否 |
+
+>表 11 - 运行模式概述及其影响
+
+### 6.6.7 Clearing the order on the mobile robot (在 mobile robot 上清除订单)
+
+响应于以下事件之一，mobile robot 应当停止执行当前订单：
+
+- mobile robot 将运行模式更改为 'MANUAL'、'STARTUP'、'SERVICE' 或 'TEACH_IN'（另请参阅 [6.6.6 Operating Mode](#666-operating-mode)）。
+- mobile robot 收到来自 fleet control 的 `cancelOrder` instant action。
+- mobile robot 收到 `startHibernation` instant action。
+
+在这些情况下，mobile robot 应当清除其当前订单，这意味着：
+
+- `actionStates` 中的任何计划中 (scheduled) 的 action 应当被取消，并在 `actionStates` 中报告为 'FAILED'。
+- `actionStates` 中任何正在运行的 action，如果：
+    - 可以被取消 (cancelAllowed = true)，则应当被取消并在 `actionStates` 中报告为 'FAILED'。
+    - 不可以被取消 (cancelAllowed = false)，则应当在执行期间反映为 'RUNNING'，随后反映为各自的状态（成功则为 'FINISHED'，否则为 'FAILED'）。
+- `orderId`、`orderUpdateId`、`lastNodeId` 和 `lastNodeSequenceId` 的值保持不变。
+- `nodeStates` 和 `edgeStates` 数组设置为空列表。
+- 任何请求应当从状态中移除。
+
+只要订单的 action 不处于 'FINISHED' 或 'FAILED' 状态，mobile robot 就不应报告运行模式为 'MANUAL'、'SERVICE' 或 'TEACH_IN'。在报告运行模式 'MANUAL'、'SERVICE' 或 'TEACH_IN' 之前，不应清空 `nodesStates` 和 `edgeStates`。
+
+订单取消只能由 fleet control 触发。
+
+### 6.6.8 Idle state of the mobile robot (mobile robot 的 idle 状态)
+
+如果 mobile robot 的 `nodeStates` 和 `edgeStates` 为空，且 `actionStates` 中的所有 action 均为 'FINISHED' 或 'FAILED'，则该 mobile robot 处于空闲 (idle) 状态。只有当 mobile robot 处于 idle 状态时，才应当接受新订单 (order)。当 mobile robot 处于 idle 状态或在订单执行期间，可以接受订单更新 (order update)。在 idle 状态下，mobile robot 可以执行 instantActions。
+
+### 6.6.9 Action states (Action 状态)
+
+当 mobile robot 接收到作为订单一部分的 `action`（附属于订单的 `node` 或 `edge`）时，它应当在其 `actionStates` 数组中通过 `actionState` 报告该 `action`。
+当 mobile robot 接收到 `instantAction` 时，它应当在其 `instantActionStates` 数组中通过 `actionState` 报告该 `action`。
+当 mobile robot 执行 `zoneAction` 时，它应当在其 `zoneActionStates` 数组中通过 `actionState` 报告该 `action`。mobile robot 也可以选择在此处报告任何计划中的 `zoneAction`。
+
+action 的当前阶段应当反映在对应 `actionState` 的 `actionStatus` 字段中（见表 2）。
+
+| actionStatus | 描述 (Description) |
+| :--- | :--- |
+| 'WAITING' | mobile robot 已接收到 action，但尚未遍历相应的节点或尚未进入相应的边。 |
+| 'INITIALIZING' | action 已触发，启动准备措施。 |
+| 'RUNNING' | action 正在运行。 |
+| 'PAUSED' | action 由于 `pause` instantAction 或外部触发（mobile robot 上的暂停按钮）而暂停。 |
+| 'RETRIABLE' | 失败但可重试的 action，由订单 action 中的 `retriable` 参数指定。从此状态的转换由 `retry` 或 `skipRetry` instantAction 或外部触发。 |
+| 'FINISHED' | action 已完成。<br>通过 `actionResult` 报告结果。 |
+| 'FAILED' | 无论出于何种原因，action 无法完成。 |
+
+>表 12 - `actionStatus` 字段的可行值
+
+所有可能的 action 状态转换如图 21 所示，下表给出了一些示例：
+
+| **从 / 到 →** | **WAITING** | **INITIALIZING** | **PAUSED** | **RUNNING** | **RETRIABLE** | **FAILED** | **FINISHED** |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **初始状态** | 排队等待稍后执行 | 立即开始初始化（如 instantAction） | - | 立即开始执行（如 instantAction） | - | instantAction 执行失败（mobile robot 未知，参数无效） | action 立即完成（如设置参数） |
+| **WAITING** | - | 需要准备（顶升、传感器通电） | - | 无需准备 | - | 通过取消 (cancel) 终止，切换到手动模式 | 达到节点/边后 action 立即成功 |
+| **INITIALIZING** | - | - | 外部触发 | 初始化完成，action 开始 | - | 初始化失败，通过取消终止，切换到手动模式 | - |
+| **PAUSED** | - | 外部触发 | - | 外部触发 | - | 通过 `cancelOrder` 终止，切换到手动模式 | - |
+| **RUNNING** | - | - | 外部触发 | - | action 未成功完成但可重试 | 通过取消终止，切换到手动模式，由于未返回期望结果导致 action 最终失败 | action 返回了期望结果，在通过 `cancelOrder` 中止后如果 action 无法中断且必须完成也可能发生。 |
+| **RETRIABLE** | - | 通过 `retry` 或外部输入重试 action | - | 通过 `retry` 或外部输入重试 action | - | 通过 `skipRetry` 失败，通过 `cancelOrder` 失败，外部触发，切换到手动模式 | 由操作员通过外部输入修复 |
+
+>表 13 - 可能的 action 状态转换示例
+
+![Figure 21 All possible status transitions for actionStates](./assets/action_state_transition.png)
+>图 21 - actionStates 的所有可能状态转换
+
+#### 6.6.9.1 Reporting of horizon actions in the mobile robot's state (在 mobile robot 状态中上报 horizon actions)
+
+mobile robot 的状态应当始终代表其当前拥有订单的完整状态。因此，机器人应当始终同时上报其 base 和 horizon 中包含的 action 的 `actionStates`。所有 horizon action 都报告为 'WAITING'。如果 mobile robot 收到订单更新，其中部分先前的 horizon 被移除或更改，则附属于这些节点和边的所有 action 都应当从 `actionStates` 中移除以反映此变化。base action 的 `actionStates` 绝不应在 `orderUpdate` 的上下文中被移除，因为 base 一旦释放就无法修改。
+
+### 6.6.10 Request Use of Corridors (请求使用走廊)
+
+如果 mobile robot 当前活跃订单中的走廊将 `releaseRequired` 标志设置为 true，则它应当在偏离边的预定义轨迹之前发出请求。为此，机器人应当在其状态消息中添加一个 `edgeRequest` 对象。`requestId` 在 mobile robot 发出的所有请求（如 `zoneRequest`、`edgeRequest`）中应当是唯一的。
+
+`requestStatus` 设置为 'REQUESTED'，且 `edgeId` 和 `sequenceId` 的组合引用了机器人请求偏离的边的轨迹。只要这些边是其当前 base 的一部分，mobile robot 就可以选择同时请求多个边的批准。每个走廊的使用应当在一个专门的 `edgeRequest` 中请求，并且每个请求应当由 fleet control 通过 `response` 主题单独批准（见第 [6.9 Request/response mechanism](#69-requestresponse-mechanism) 节）。
+
+Fleet control 应当仅释放属于 base 的边的走廊。在收到来自 fleet control 的 `response` 之前，机器人应当保持在其当前边的预定义轨迹上。一旦机器人收到开始操纵的批准，它将 `requestStatus` 设置为 'GRANTED'，现在可以使用该走廊。
+
+只要机器人需要该走廊，它就应当在状态中保留 `edgeRequest`。如果 mobile robot 不再需要使用走廊（例如，因为它可能已经成功完成了避障程序，不再需要避开障碍物等），它通过从其状态中移除相应的 `edgeRequest` 对象来向 fleet control 指示这一点。从此以后，mobile robot 应当再次作为有轨导引机器人行动。如果它希望再次偏离预定义轨迹，它应当发出一个新的 `edgeRequest`。
+如果在避障过程中机器人到达了其当前边的 `corridor` 尽头，并计划继续进入下一个尚未释放的走廊，它应当在当前 `corridor` 的边界处停止，发送一个专门的边请求，并等待 fleet control 的批准。
+
+如果 mobile robot 的批准根据响应的 `leaseExpiry` 到期，或者当 fleet control 撤销已授予的请求时，mobile robot 应当启动在边的走廊 `releaseLossBehavior` 中预定义的后备操作 (fallback action)。
+丢失释放权限后的恢复策略要么是 mobile robot 沿着偏离时的路径返回到边的预定义轨迹，要么是停止在当前位置并等待人工干预。
+
+## 6.7 Visualization (可视化)
+
+为了近乎实时的位置和计划轨迹更新，mobile robot 可以在 `visualization` 主题上广播其位置、速度和计划轨迹。
+
+visualization 对象的字段使用与状态中的位置、速度、计划路径和中间路径对象相同的结构。
+更多信息见 [visualization 消息的实现](#79-implementation-of-the-visualization-message)。
+该主题的更新率由集成商定义。
+
+
+## 6.8 Sharing of planned paths for freely navigating mobile robots (自由导航 mobile robot 的计划路径共享)
+
+自由导航的 mobile robot 应当通过状态消息向 fleet control 系统传达其计划轨迹。为了更高频率的共享，可以使用 `visualization` 主题。
+
+mobile robot 共享它们的 `intermediatePath`（中间路径）和 `plannedPath`（计划路径）。`intermediatePath` 代表到达 mobile robot 能够通过其传感器感知的较近航点的预计到达时间，而 `plannedPath` 代表 mobile robot 当前活跃订单中较长的路径。两条路径都应当从 mobile robot 的当前位置开始，独立于属于订单的任何节点。mobile robot 可以根据具体情况决定共享路径的长度。如果 mobile robot 是自由导航的，则在每个状态中都应当共享 `intermediatePath` 和 `plannedPath`。
+
+- `plannedPath` 被定义为 NURBS，如 `edgeState` 的 `trajectory` 字段中所定义。`plannedPath` 可以包含一系列节点（由其 `nodeId` 引用），这些节点将作为当前路径的一部分被遍历。每当 mobile robot 的 `plannedPath` 发生重大变化时，都应当对其进行更新。`plannedPath` 应当至少覆盖 mobile robot 的当前 base。
+- `intermediatePath` 被定义为折线 (polyline)。折线由航点之间的线性线段组成。每个 `waypoint` 由其 `x` 和 `y` 位置、可选的 mobile robot 方向以及指示预计到达时间的 `ETA` 组成。
+`intermediatePath` 应当随每条发送的状态或可视化消息进行更新，并且始终从 mobile robot 的当前位置开始。
+
+参数 `plannedPath` 和 `intermediatePath` 应当仅用于 mobile robot 规划的轨迹。`edgeState` 中的轨迹字段应当仅用于“确认”已经在布局或订单中预先定义的轨迹。
+
+
+## 6.9 Request/response mechanism (请求/响应机制)
+
+mobile robot 与 fleet control 之间的某些协调任务在 mobile robot 被允许执行操作之前需要来自 fleet control 的显式许可。对于这些情况，使用请求/响应机制。请求的生命周期在图 22 中描述。
+
+![Figure 22 Visualization of request state transitions](./assets/request_state_transitions.png)
+>图 22 - 请求生命周期：请求状态和可能转换的逻辑。
+
+请求始终由 mobile robot 发起，并作为状态消息的一部分进行传达。Fleet control 应当评估该请求并通过 `responses` 主题返回其决定。
+
+每个请求在 mobile robot 上应当由状态消息中包含的一个请求对象（例如 zoneRequest）来表示。请求对象应当至少包含：
+
+- 一个 `requestId`，对于该 mobile robot 所有当前活跃的请求来说是唯一的，
+- 一个 `requestType`，指定请求涉及的操作类型（访问、重新规划、走廊使用），
+- 对请求所针对的资源的引用（例如区域、区域集、地图、edgeId、sequenceId），以及
+- 一个 `requestStatus`。
+
+`requestStatus` 字段描述了请求的生命周期，并应当支持以下值：
+
+- 'REQUESTED'：mobile robot 提出请求。
+- 'GRANTED'：fleet control 授予请求。
+- 'REVOKED'：fleet control 撤回之前授予的请求。
+- 'EXPIRED'：请求已过期。
+- 'QUEUED'：确认 mobile robot 向 fleet control 提出的请求，但尚未给出许可。请求已被添加到某种队列中。
+
+Fleet control 从状态主题接收请求，并应当通过 `responses` 主题进行回答，其中包含一个响应对象，该对象包括：
+
+- 对应请求的 `requestId`，
+- 一个具有 'GRANTED'、'QUEUED'、'REJECTED' 或 'REVOKED' 之一值的决定 (decision)，以及
+- 可选的一个 `leaseExpiry`（租约到期）时间戳，用于限制 'GRANTED' 决定的有效期。
+
+如果请求被回答为 'QUEUED'，fleet control 确认收到了请求，但尚未授权许可。此时 mobile robot 应当继续等待，且不得执行所请求的操作。如果请求被回答为 'REJECTED'，mobile robot 不得执行所请求的操作，并且当不再需要时可以从其状态中移除相应的请求对象。
+
+如果请求被回答为 'GRANTED'，允许 mobile robot 根据请求类型的语义执行所请求的操作。如果存在 `leaseExpiry`，许可仅在此时之前被视为有效。Fleet control 可以通过发送具有相同 `requestId` 和新 `leaseExpiry` 的更新响应来延长租约。
+
+如果请求被回答为 'REVOKED'，或者达到了 `leaseExpiry`，mobile robot 应当根据为请求资源定义的 `releaseLossBehavior` 行动。
+如果请求的操作已经开始，mobile robot 应当相应地更新 `requestStatus`（'REVOKED' 或 'EXPIRED'），并将其保留在状态中，直到 `releaseLossBehavior` 结束。如果请求的操作尚未开始，mobile robot 应当从其状态中移除该请求。
+
+如果在应用所需的时限内未收到响应，mobile robot 应当表现得好像请求未被授予一样，并且不得执行需要显式许可的操作。超时和重试的处理应当在集成期间定义。
+
+一旦相应的操作完成、中止或被拒绝，且不再需要来自 fleet control 的进一步决定，请求应当从 mobile robot 的状态中移除。
+
+
+## 6.10 Factsheet (Factsheet)
+
+factsheet 提供了关于特定 mobile robot 型号系列的基本信息。
+这些信息允许比较不同的 mobile robot 类型，并可应用于 mobile robot 系统的规划、尺寸设计、仿真或集成。
+
+mobile robot factsheet 中某些字段的值只能在系统集成期间指定，例如为 mobile robot 分配特定项目的负载。
+factsheet 旨在作为人类可读的文档并用于机器处理（例如由 fleet control 应用导入），因此被指定为 JSON 文档。
+
+Fleet control 可以通过发送 `factsheetRequest` instant action 向 mobile robot 请求 factsheet。
+
+此主题上的所有消息都应当带有 `retained` 标志发送。
+
+# 7 Message specification (消息规范)
+
+不同的消息以表格的形式呈现，描述了 JSON 字段的内容。
+
+此外，在公共 git 仓库 (https://github.com/VDA5050/VDA5050) 中提供了用于验证的 JSON schema。
+JSON schema 随 VDA5050 的每个版本进行更新。如果 JSON schema 与本文档之间存在差异，则以本文档中的变体为准。
+
+
+## 7.1 Symbols of the tables and meaning of formatting (表格符号及格式含义)
+
+对象结构表包含标识符的名称、其单位、其数据类型以及描述（如果有）。
+
+| 标识 (Identification) | 描述 (Description) |
+| :--- | :--- |
+| standard | 变量是基本数据类型 |
+| **bold** (加粗) | 变量是非基本数据类型（如 JSON 对象或数组）且单独定义 |
+| *italic* (斜体) | 变量是可选的 |
+| ***italic and bold*** (斜体加粗) | 变量是可选的且是非基本数据类型 |
+| arrayName[arrayDataType] | 变量（此处为 arrayName）是方括号中所含数据类型（此处为 arrayDataType）的数组 |
+
+>表 14 - 表格符号及格式含义
+
+所有字段名称均采用小驼峰式 (camelCase)。
+
+
+### 7.1.1 Optional fields (可选字段)
+
+如果一个变量被标记为可选，则对于发送方来说它是可选的，因为在某些情况下该变量可能不适用（例如，当 fleet control 向 mobile robot 发送订单时，一些 mobile robot 会自行规划轨迹，此时订单中 `edge` 对象的 `trajectory` 字段可以省略）。
+
+如果 mobile robot 收到包含在本协议中标记为可选字段的消息，mobile robot 应当据此行动，且不得忽略该字段。
+如果 mobile robot 由于不支持的参数而无法处理订单，它应当通过类型为 'UNSUPPORTED_PARAMETER' 且错误级别为 'CRITICAL' 的错误进行传达，并拒绝该订单。
+
+Fleet control 应当仅发送 mobile robot 支持的可选字段。
+
+示例：轨迹 (Trajectories) 是可选的。
+如果 mobile robot 无法处理轨迹，fleet control 不得向该 mobile robot 发送轨迹。
+
+mobile robot 应当通过 mobile robot `factsheet` 消息传达其需要哪些可选参数。
+
+
+### 7.1.2 Permitted characters and field lengths (允许的字符及字段长度)
+
+所有通信均采用 UTF-8 编码，以便对描述进行国际化适配。
+建议 ID 仅使用以下字符：
+
+A-Z a-z 0-9 _ - . :
+
+最大消息长度未定义，但受到 MQTT 协议规范以及可能由 factsheet 定义的技术约束的限制。
+
+如果 mobile robot 的内存不足以处理传入的订单，它应当拒绝该订单并报告类型为 'INSUFFICIENT_MEMORY' 且错误级别为 'URGENT' 的错误。
+
+最大字段长度、字符串长度或数值范围的匹配由集成商决定。
+
+为了便于集成，mobile robot 供应商应当提供一份 mobile robot factsheet，其详细信息见第 [7.10 Implementation of the factsheet message](#710-implementation-of-the-factsheet-message) 节。
+
+
+### 7.1.3 Notation of fields, topics and enumerations (字段、主题和枚举的记法)
+
+本文档中的主题和字段以下列样式突出显示：`exampleField` 和 `exampleTopic`。
+枚举应当使用大写字母书写，并使用下划线分隔单词，例如 'EXAMPLE_ENUMERATION'。这些值在文档中用单引号括起来。
+这包括关键字，如 `actionStatus` 字段中的值（'WAITING'、'FINISHED' 等）。
+可扩展枚举包括但不限于为该参数预定义的值。
+
+
+### 7.1.4 JSON data types (JSON 数据类型)
+
+在可能的情况下，应当使用 JSON 数据类型。
+因此，布尔值通过 "true" 或 "false" 编码，而不是使用枚举（'TRUE'、'FALSE'）或魔术数字。
+数值数据类型指定了类型和精度，例如 float64 或 uint32。不支持来自 IEEE 754 的特殊数值，如 NaN 和 infinity（无穷大）。
+
+
+## 7.2 Protocol header (协议头)
+
+每个 JSON 消息都以一个 header 开头。
+header 由以下各个元素组成。
+header 不是一个 JSON 对象（译者注：即其字段直接位于消息根级）。
+
+| 对象结构 (Object structure) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- |
+| headerId | uint32 | 消息的 Header ID。<br>headerId 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
+| timestamp | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
+| version | string | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。 |
+| manufacturer | string | mobile robot 的制造商。 |
+| serialNumber | string | mobile robot 的序列号。 |
+
+
+## 7.3 Implementation of the order message (order 消息的实现)
+
+| 对象结构 (Object structure) | 单位 (Unit) | 数据类型 (Data type) | 描述 (Description) |
+| :--- | :--- | :--- | :--- |
+| headerId | | uint32 | 消息的 Header ID。<br>header ID 按主题定义，每发送一条（但不一定被接收）消息递增 1。 |
+| timestamp | | string | 时间戳 (ISO 8601, UTC)；YYYY-MM-DDTHH:mm:ss.fffZ (例如 "2017-04-15T11:40:03.123Z")。 |
+| version | | string | 协议版本 [Major].[Minor].[Patch] (例如 1.3.2)。 |
+| manufacturer | | string | mobile robot 的制造商。 |
+| serialNumber | | string | mobile robot 的序列号。 |
+| orderId | | string | 订单标识。<br>用于标识属于同一订单的多个订单消息。 |
+| orderUpdateId | | uint32 | 订单更新标识。<br>对于每个 `orderId` 应当是唯一的，且新订单从 0 开始。<br>如果订单更新被拒绝，该字段应当在相应的错误中传递。 |
+| *orderDescription* | | string | 额外的可读信息，仅用于可视化目的；不得用于任何逻辑过程。 |
+| **nodes [node]** | | array | 完成订单所需遍历的节点 (node) 对象数组。 |
+| **edges [edge]** | | array | 完成订单所需遍历的边 (edge) 对象数组。 |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
